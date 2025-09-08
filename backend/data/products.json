@@ -1,0 +1,31 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "code": "GF-KIDS",
+      "name": "어린이 안전 솔루션",
+      "category": "안전관리",
+      "description": "어린이집, 유치원을 위한 얼굴인식 출입 관리 시스템",
+      "features": [
+        "실시간 출입 알림",
+        "학부모 앱 연동",
+        "안전 구역 설정"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "code": "GF-KIOSK",
+      "name": "무인 키오스크",
+      "category": "무인시스템",
+      "description": "얼굴인식 기반 무인 주문 및 결제 시스템",
+      "features": [
+        "비접촉 주문",
+        "회원 자동 인식",
+        "맞춤 메뉴 추천"
+      ],
+      "status": "active"
+    }
+  ],
+  "nextId": 3
+}
