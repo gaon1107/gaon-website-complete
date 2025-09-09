@@ -4,6 +4,10 @@ import './App.css';
 function App() {
   const [currentPage, setCurrentPage] = React.useState('home');
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [adminSection, setAdminSection] = React.useState('dashboard');
+  const [notices, setNotices] = React.useState([]);
+  const [products, setProducts] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   const showPage = (page) => {
     if (page === 'admin' && !isLoggedIn) {
@@ -30,8 +34,76 @@ function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setCurrentPage('home');
+    setAdminSection('dashboard');
     alert('로그아웃되었습니다.');
   };
+
+  const fetchNotices = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/notices');
+      const data = await response.json();
+      setNotices(data);
+    } catch (error) {
+      console.error('공지사항 로딩 실패:', error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/products');
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('제품 로딩 실패:', error);
+    }
+  };
+
+  const addNotice = async (notice) => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/notices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notice)
+      });
+      if (response.ok) {
+        fetchNotices();
+        alert('공지사항이 추가되었습니다.');
+      }
+    } catch (error) {
+      console.error('공지사항 추가 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addProduct = async (product) => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      });
+      if (response.ok) {
+        fetchProducts();
+        alert('제품이 추가되었습니다.');
+      }
+    } catch (error) {
+      console.error('제품 추가 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (isLoggedIn && adminSection === 'notices') {
+      fetchNotices();
+    }
+    if (isLoggedIn && adminSection === 'products') {
+      fetchProducts();
+    }
+  }, [isLoggedIn, adminSection]);
 
   return (
     <div className="App">
@@ -174,24 +246,281 @@ function App() {
                 로그아웃
               </button>
             </div>
-            <div className="feature-grid">
-              <div className="feature">
-                <h3>📝 공지사항 관리</h3>
-                <p>공지사항을 등록하고 관리합니다</p>
+            
+            {adminSection === 'dashboard' && (
+              <div className="feature-grid">
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => setAdminSection('notices')}>
+                  <h3>📝 공지사항 관리</h3>
+                  <p>공지사항을 등록하고 관리합니다</p>
+                </div>
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => setAdminSection('products')}>
+                  <h3>📦 제품 관리</h3>
+                  <p>GF 시리즈 제품을 관리합니다</p>
+                </div>
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => setAdminSection('images')}>
+                  <h3>🖼️ 이미지 관리</h3>
+                  <p>웹사이트 이미지를 관리합니다</p>
+                </div>
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => setAdminSection('statistics')}>
+                  <h3>📊 통계 분석</h3>
+                  <p>방문자 통계를 확인합니다</p>
+                </div>
               </div>
-              <div className="feature">
-                <h3>📦 제품 관리</h3>
-                <p>GF 시리즈 제품을 관리합니다</p>
+            )}
+
+            {adminSection === 'notices' && (
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                  <h2>공지사항 관리</h2>
+                  <button 
+                    onClick={() => setAdminSection('dashboard')}
+                    style={{padding: '8px 16px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                  >
+                    대시보드로 돌아가기
+                  </button>
+                </div>
+                
+                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', marginBottom: '20px'}}>
+                  <h3>새 공지사항 추가</h3>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const title = e.target.title.value;
+                    const content = e.target.content.value;
+                    if (title && content) {
+                      addNotice({ title, content });
+                      e.target.reset();
+                    }
+                  }}>
+                    <div style={{marginBottom: '15px'}}>
+                      <input 
+                        name="title"
+                        type="text" 
+                        placeholder="제목"
+                        style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
+                        required
+                      />
+                    </div>
+                    <div style={{marginBottom: '15px'}}>
+                      <textarea 
+                        name="content"
+                        placeholder="내용"
+                        rows="4"
+                        style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
+                        required
+                      />
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={loading}
+                      style={{padding: '10px 20px', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                    >
+                      {loading ? '추가 중...' : '공지사항 추가'}
+                    </button>
+                  </form>
+                </div>
+
+                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+                  <h3>등록된 공지사항</h3>
+                  {notices.length > 0 ? (
+                    notices.map((notice, index) => (
+                      <div key={index} style={{borderBottom: '1px solid #eee', padding: '15px 0'}}>
+                        <h4 style={{margin: '0 0 10px 0', color: '#333'}}>{notice.title}</h4>
+                        <p style={{margin: '0 0 10px 0', color: '#666'}}>{notice.content}</p>
+                        <small style={{color: '#999'}}>{notice.date}</small>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{color: '#666', textAlign: 'center', margin: '20px 0'}}>등록된 공지사항이 없습니다.</p>
+                  )}
+                </div>
               </div>
-              <div className="feature">
-                <h3>🖼️ 이미지 관리</h3>
-                <p>웹사이트 이미지를 관리합니다</p>
+            )}
+
+            {adminSection === 'products' && (
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                  <h2>제품 관리</h2>
+                  <button 
+                    onClick={() => setAdminSection('dashboard')}
+                    style={{padding: '8px 16px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                  >
+                    대시보드로 돌아가기
+                  </button>
+                </div>
+                
+                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', marginBottom: '20px'}}>
+                  <h3>새 제품 추가</h3>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const name = e.target.name.value;
+                    const description = e.target.description.value;
+                    const category = e.target.category.value;
+                    if (name && description && category) {
+                      addProduct({ name, description, category });
+                      e.target.reset();
+                    }
+                  }}>
+                    <div style={{marginBottom: '15px'}}>
+                      <input 
+                        name="name"
+                        type="text" 
+                        placeholder="제품명"
+                        style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
+                        required
+                      />
+                    </div>
+                    <div style={{marginBottom: '15px'}}>
+                      <select 
+                        name="category"
+                        style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
+                        required
+                      >
+                        <option value="">카테고리 선택</option>
+                        <option value="GF-KIDS">GF-KIDS</option>
+                        <option value="GF-KIOSK">GF-KIOSK</option>
+                        <option value="GF-CCTV">GF-CCTV</option>
+                        <option value="GF-VIP">GF-VIP</option>
+                      </select>
+                    </div>
+                    <div style={{marginBottom: '15px'}}>
+                      <textarea 
+                        name="description"
+                        placeholder="제품 설명"
+                        rows="3"
+                        style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
+                        required
+                      />
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={loading}
+                      style={{padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                    >
+                      {loading ? '추가 중...' : '제품 추가'}
+                    </button>
+                  </form>
+                </div>
+
+                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+                  <h3>등록된 제품</h3>
+                  {products.length > 0 ? (
+                    products.map((product, index) => (
+                      <div key={index} style={{borderBottom: '1px solid #eee', padding: '15px 0'}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                          <div>
+                            <h4 style={{margin: '0 0 5px 0', color: '#333'}}>{product.name}</h4>
+                            <span style={{background: '#e74c3c', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', marginBottom: '10px', display: 'inline-block'}}>{product.category}</span>
+                            <p style={{margin: '10px 0 0 0', color: '#666'}}>{product.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{color: '#666', textAlign: 'center', margin: '20px 0'}}>등록된 제품이 없습니다.</p>
+                  )}
+                </div>
               </div>
-              <div className="feature">
-                <h3>📊 통계 분석</h3>
-                <p>방문자 통계를 확인합니다</p>
+            )}
+
+            {adminSection === 'images' && (
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                  <h2>이미지 관리</h2>
+                  <button 
+                    onClick={() => setAdminSection('dashboard')}
+                    style={{padding: '8px 16px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                  >
+                    대시보드로 돌아가기
+                  </button>
+                </div>
+                
+                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+                  <h3>이미지 업로드</h3>
+                  <p style={{color: '#666', marginBottom: '20px'}}>웹사이트에 사용할 이미지를 업로드하고 관리할 수 있습니다.</p>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    style={{marginBottom: '15px'}}
+                  />
+                  <br />
+                  <button 
+                    style={{padding: '10px 20px', background: '#17a2b8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                    onClick={() => alert('이미지 업로드 기능은 곧 추가될 예정입니다.')}
+                  >
+                    이미지 업로드
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {adminSection === 'statistics' && (
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                  <h2>통계 분석</h2>
+                  <button 
+                    onClick={() => setAdminSection('dashboard')}
+                    style={{padding: '8px 16px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                  >
+                    대시보드로 돌아가기
+                  </button>
+                </div>
+                
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '20px'}}>
+                  <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', textAlign: 'center'}}>
+                    <h3 style={{color: '#28a745', margin: '0 0 10px 0'}}>총 방문자</h3>
+                    <div style={{fontSize: '32px', fontWeight: 'bold', color: '#333'}}>1,234</div>
+                  </div>
+                  <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', textAlign: 'center'}}>
+                    <h3 style={{color: '#007bff', margin: '0 0 10px 0'}}>오늘 방문자</h3>
+                    <div style={{fontSize: '32px', fontWeight: 'bold', color: '#333'}}>89</div>
+                  </div>
+                  <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', textAlign: 'center'}}>
+                    <h3 style={{color: '#ffc107', margin: '0 0 10px 0'}}>페이지뷰</h3>
+                    <div style={{fontSize: '32px', fontWeight: 'bold', color: '#333'}}>3,456</div>
+                  </div>
+                  <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', textAlign: 'center'}}>
+                    <h3 style={{color: '#e74c3c', margin: '0 0 10px 0'}}>평균 체류시간</h3>
+                    <div style={{fontSize: '32px', fontWeight: 'bold', color: '#333'}}>2:34</div>
+                  </div>
+                </div>
+                
+                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+                  <h3>최근 방문 기록</h3>
+                  <div style={{overflowX: 'auto'}}>
+                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                      <thead>
+                        <tr style={{borderBottom: '2px solid #eee'}}>
+                          <th style={{padding: '10px', textAlign: 'left'}}>시간</th>
+                          <th style={{padding: '10px', textAlign: 'left'}}>IP</th>
+                          <th style={{padding: '10px', textAlign: 'left'}}>페이지</th>
+                          <th style={{padding: '10px', textAlign: 'left'}}>브라우저</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr style={{borderBottom: '1px solid #eee'}}>
+                          <td style={{padding: '10px'}}>2024-01-15 14:32</td>
+                          <td style={{padding: '10px'}}>192.168.1.100</td>
+                          <td style={{padding: '10px'}}>홈페이지</td>
+                          <td style={{padding: '10px'}}>Chrome</td>
+                        </tr>
+                        <tr style={{borderBottom: '1px solid #eee'}}>
+                          <td style={{padding: '10px'}}>2024-01-15 14:25</td>
+                          <td style={{padding: '10px'}}>192.168.1.101</td>
+                          <td style={{padding: '10px'}}>제품페이지</td>
+                          <td style={{padding: '10px'}}>Firefox</td>
+                        </tr>
+                        <tr style={{borderBottom: '1px solid #eee'}}>
+                          <td style={{padding: '10px'}}>2024-01-15 14:18</td>
+                          <td style={{padding: '10px'}}>192.168.1.102</td>
+                          <td style={{padding: '10px'}}>공지사항</td>
+                          <td style={{padding: '10px'}}>Safari</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
