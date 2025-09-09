@@ -25,7 +25,15 @@
         "맞춤 메뉴 추천"
       ],
       "status": "active"
+    },
+    {
+      "id": 3,
+      "name": "교촌 픽업 자판기",
+      "category": "GF-KIOSK",
+      "description": "테스트~~~",
+      "createdAt": "2025-09-09",
+      "status": "active"
     }
   ],
-  "nextId": 3
+  "nextId": 4
 }

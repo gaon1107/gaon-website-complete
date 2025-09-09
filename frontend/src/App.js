@@ -8,6 +8,7 @@ function App() {
   const [notices, setNotices] = React.useState([]);
   const [products, setProducts] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
+  const [expandedProducts, setExpandedProducts] = React.useState({});
 
   const showPage = (page) => {
     if (page === 'admin' && !isLoggedIn) {
@@ -38,9 +39,27 @@ function App() {
     alert('로그아웃되었습니다.');
   };
 
+  const toggleProductDetail = (productId) => {
+    setExpandedProducts(prev => ({
+      ...prev,
+      [productId]: !prev[productId]
+    }));
+  };
+
+  const groupProductsByCategory = (products) => {
+    return products.reduce((groups, product) => {
+      const category = product.category || '기타';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(product);
+      return groups;
+    }, {});
+  };
+
   const fetchNotices = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/notices');
+      const response = await fetch('http://localhost:5001/api/notices');
       const data = await response.json();
       setNotices(data);
     } catch (error) {
@@ -50,7 +69,7 @@ function App() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products');
+      const response = await fetch('http://localhost:5001/api/products');
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -61,7 +80,7 @@ function App() {
   const addNotice = async (notice) => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/notices', {
+      const response = await fetch('http://localhost:5001/api/notices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(notice)
@@ -80,7 +99,7 @@ function App() {
   const addProduct = async (product) => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch('http://localhost:5001/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product)
@@ -103,7 +122,17 @@ function App() {
     if (isLoggedIn && adminSection === 'products') {
       fetchProducts();
     }
-  }, [isLoggedIn, adminSection]);
+    if (currentPage === 'notices') {
+      fetchNotices();
+    }
+    if (currentPage === 'products') {
+      fetchProducts();
+    }
+    if (currentPage === 'home') {
+      fetchNotices();
+      fetchProducts();
+    }
+  }, [isLoggedIn, adminSection, currentPage]);
 
   return (
     <div className="App">
@@ -151,6 +180,78 @@ function App() {
               </div>
             </div>
           </section>
+
+          {/* 최신 공지사항 섹션 */}
+          {notices.length > 0 && (
+            <section style={{padding: '60px 0', background: '#f8f9fa'}}>
+              <div className="container">
+                <h2 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>최신 공지사항</h2>
+                <div style={{maxWidth: '800px', margin: '0 auto'}}>
+                  {notices.slice(0, 3).map((notice, index) => (
+                    <div key={index} style={{
+                      background: 'white', 
+                      padding: '20px', 
+                      marginBottom: '15px', 
+                      borderRadius: '8px', 
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                      cursor: 'pointer'
+                    }} onClick={() => showPage('notices')}>
+                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <div>
+                          <span style={{background: '#e74c3c', color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', marginRight: '10px'}}>공지</span>
+                          <strong style={{color: '#333'}}>{notice.title}</strong>
+                        </div>
+                        <span style={{color: '#999', fontSize: '14px'}}>{notice.date}</span>
+                      </div>
+                      {notice.content && (
+                        <p style={{margin: '10px 0 0 0', color: '#666', fontSize: '14px'}}>
+                          {notice.content.length > 100 ? notice.content.substring(0, 100) + '...' : notice.content}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  <div style={{textAlign: 'center', marginTop: '20px'}}>
+                    <button 
+                      onClick={() => showPage('notices')}
+                      style={{padding: '10px 30px', background: '#667eea', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer'}}
+                    >
+                      더 많은 공지사항 보기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* 주요 제품 소개 섹션 */}
+          {products.length > 0 && (
+            <section style={{padding: '60px 0', background: 'white'}}>
+              <div className="container">
+                <h2 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>주요 제품</h2>
+                <div className="feature-grid">
+                  {products.slice(0, 4).map((product, index) => (
+                    <div key={index} className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('products')}>
+                      <h3>{product.name}</h3>
+                      <div style={{marginBottom: '10px'}}>
+                        <span style={{background: '#e74c3c', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px'}}>
+                          {product.category}
+                        </span>
+                      </div>
+                      <p>{product.description}</p>
+                    </div>
+                  ))}
+                </div>
+                <div style={{textAlign: 'center', marginTop: '30px'}}>
+                  <button 
+                    onClick={() => showPage('products')}
+                    style={{padding: '10px 30px', background: '#667eea', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer'}}
+                  >
+                    모든 제품 보기
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
         </>
       )}
 
@@ -158,24 +259,179 @@ function App() {
         <section className="products-page">
           <div className="container">
             <h1 style={{marginTop: '40px', marginBottom: '30px'}}>GF 시리즈 제품</h1>
-            <div className="feature-grid">
-              <div className="feature">
-                <h3>GF-KIDS</h3>
-                <p>어린이 안전 솔루션</p>
+            {products.length > 0 ? (
+              <div>
+                {Object.entries(groupProductsByCategory(products)).map(([category, categoryProducts]) => (
+                  <div key={category} style={{marginBottom: '40px'}}>
+                    <h2 style={{
+                      color: '#333', 
+                      borderBottom: '3px solid #667eea', 
+                      paddingBottom: '10px', 
+                      marginBottom: '20px',
+                      fontSize: '24px'
+                    }}>
+                      {category}
+                    </h2>
+                    <div style={{background: 'white', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', overflow: 'hidden'}}>
+                      {categoryProducts.map((product, index) => (
+                        <div key={product.id || index} style={{borderBottom: index < categoryProducts.length - 1 ? '1px solid #eee' : 'none'}}>
+                          <div 
+                            style={{
+                              padding: '20px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              backgroundColor: expandedProducts[product.id] ? '#f8f9fa' : 'white',
+                              transition: 'all 0.3s ease'
+                            }}
+                            onClick={() => toggleProductDetail(product.id)}
+                            onMouseEnter={(e) => {
+                              if (!expandedProducts[product.id]) {
+                                e.target.style.backgroundColor = '#f8f9fa';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!expandedProducts[product.id]) {
+                                e.target.style.backgroundColor = 'white';
+                              }
+                            }}
+                          >
+                            <div>
+                              <h3 style={{margin: '0 0 5px 0', color: '#333', fontSize: '18px'}}>{product.name}</h3>
+                              <span style={{
+                                background: '#667eea', 
+                                color: 'white', 
+                                padding: '3px 12px', 
+                                borderRadius: '15px', 
+                                fontSize: '12px'
+                              }}>
+                                {product.category}
+                              </span>
+                            </div>
+                            <div style={{
+                              transform: expandedProducts[product.id] ? 'rotate(90deg)' : 'rotate(0deg)',
+                              transition: 'transform 0.3s ease',
+                              fontSize: '18px',
+                              color: '#667eea'
+                            }}>
+                              ▶
+                            </div>
+                          </div>
+                          
+                          {expandedProducts[product.id] && (
+                            <div style={{
+                              padding: '20px',
+                              backgroundColor: '#f8f9fa',
+                              borderTop: '1px solid #e0e0e0',
+                              animation: 'slideDown 0.3s ease'
+                            }}>
+                              <div style={{
+                                background: 'white',
+                                padding: '20px',
+                                borderRadius: '8px',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                              }}>
+                                <h4 style={{color: '#667eea', margin: '0 0 15px 0'}}>📋 제품 상세 정보</h4>
+                                <p style={{
+                                  color: '#555',
+                                  lineHeight: '1.6',
+                                  margin: '0 0 15px 0',
+                                  fontSize: '15px'
+                                }}>
+                                  {product.description}
+                                </p>
+                                
+                                {product.features && product.features.length > 0 && (
+                                  <div>
+                                    <h5 style={{color: '#333', margin: '0 0 10px 0'}}>🌟 주요 특징</h5>
+                                    <ul style={{
+                                      color: '#555',
+                                      paddingLeft: '20px',
+                                      margin: '0 0 15px 0'
+                                    }}>
+                                      {product.features.map((feature, idx) => (
+                                        <li key={idx} style={{marginBottom: '5px'}}>{feature}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                
+                                <div style={{
+                                  display: 'flex', 
+                                  justifyContent: 'space-between', 
+                                  alignItems: 'center',
+                                  paddingTop: '15px',
+                                  borderTop: '1px solid #eee'
+                                }}>
+                                  <span style={{color: '#999', fontSize: '13px'}}>
+                                    등록일: {product.createdAt || '2024-01-15'}
+                                  </span>
+                                  <span style={{
+                                    background: product.status === 'active' ? '#28a745' : '#6c757d',
+                                    color: 'white',
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                    fontSize: '11px'
+                                  }}>
+                                    {product.status === 'active' ? '서비스 중' : '준비 중'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="feature">
-                <h3>GF-KIOSK</h3>
-                <p>무인 키오스크 시스템</p>
+            ) : (
+              <div style={{textAlign: 'center', color: '#666', padding: '40px 0'}}>
+                {loading ? '제품 정보를 불러오는 중...' : (
+                  <div>
+                    <p style={{fontSize: '18px', marginBottom: '30px'}}>등록된 제품이 없습니다.</p>
+                    <div>
+                      {['GF-KIDS', 'GF-KIOSK', 'GF-CCTV', 'GF-VIP'].map((category, index) => (
+                        <div key={category} style={{marginBottom: '30px'}}>
+                          <h2 style={{
+                            color: '#333', 
+                            borderBottom: '3px solid #667eea', 
+                            paddingBottom: '10px', 
+                            marginBottom: '20px'
+                          }}>
+                            {category}
+                          </h2>
+                          <div style={{background: 'white', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', padding: '20px'}}>
+                            <h3 style={{color: '#333', margin: '0 0 10px 0'}}>
+                              {category === 'GF-KIDS' && '어린이 안전 솔루션'}
+                              {category === 'GF-KIOSK' && '무인 키오스크 시스템'}
+                              {category === 'GF-CCTV' && '지능형 CCTV 솔루션'}
+                              {category === 'GF-VIP' && 'VIP 관리 시스템'}
+                            </h3>
+                            <span style={{
+                              background: '#667eea', 
+                              color: 'white', 
+                              padding: '3px 12px', 
+                              borderRadius: '15px', 
+                              fontSize: '12px'
+                            }}>
+                              {category}
+                            </span>
+                            <p style={{color: '#666', marginTop: '15px'}}>
+                              {category === 'GF-KIDS' && '어린이집, 유치원을 위한 안전한 출입 관리 시스템입니다.'}
+                              {category === 'GF-KIOSK' && '얼굴인식 기반 무인 주문 및 결제 시스템입니다.'}
+                              {category === 'GF-CCTV' && '지능형 얼굴 인식이 가능한 보안 솔루션입니다.'}
+                              {category === 'GF-VIP' && '특별 고객을 위한 맞춤형 관리 시스템입니다.'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="feature">
-                <h3>GF-CCTV</h3>
-                <p>지능형 CCTV 솔루션</p>
-              </div>
-              <div className="feature">
-                <h3>GF-VIP</h3>
-                <p>VIP 관리 시스템</p>
-              </div>
-            </div>
+            )}
           </div>
         </section>
       )}
@@ -185,11 +441,24 @@ function App() {
           <div className="container">
             <h1 style={{marginTop: '40px', marginBottom: '30px'}}>공지사항</h1>
             <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
-              <div style={{borderBottom: '1px solid #eee', padding: '15px 0'}}>
-                <span style={{background: '#e74c3c', color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', marginRight: '10px'}}>공지</span>
-                GAON 홈페이지가 새롭게 오픈했습니다
-                <span style={{float: 'right', color: '#999'}}>2024.01.15</span>
-              </div>
+              {notices.length > 0 ? (
+                notices.map((notice, index) => (
+                  <div key={index} style={{borderBottom: index < notices.length - 1 ? '1px solid #eee' : 'none', padding: '15px 0'}}>
+                    <span style={{background: '#e74c3c', color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', marginRight: '10px'}}>공지</span>
+                    {notice.title}
+                    <span style={{float: 'right', color: '#999'}}>{notice.date}</span>
+                    {notice.content && (
+                      <div style={{marginTop: '10px', color: '#666', fontSize: '14px'}}>
+                        {notice.content}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div style={{textAlign: 'center', color: '#666', padding: '40px 0'}}>
+                  {loading ? '공지사항을 불러오는 중...' : '등록된 공지사항이 없습니다.'}
+                </div>
+              )}
             </div>
           </div>
         </section>

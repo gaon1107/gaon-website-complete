@@ -34,6 +34,7 @@ if (!fs.existsSync(dataPath)) {
 }
 
 const readData = () => JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+const writeData = (data) => fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
 
 router.get('/', (req, res) => {
   try {
@@ -41,6 +42,55 @@ router.get('/', (req, res) => {
     res.json(data.products);
   } catch (error) {
     res.status(500).json({ error: '제품을 불러올 수 없습니다.' });
+  }
+});
+
+router.post('/', (req, res) => {
+  try {
+    const { name, category, description } = req.body;
+    
+    if (!name || !category || !description) {
+      return res.status(400).json({ error: '모든 필드를 입력해주세요.' });
+    }
+
+    const data = readData();
+    const newProduct = {
+      id: data.nextId,
+      name,
+      category,
+      description,
+      createdAt: new Date().toISOString().split('T')[0],
+      status: 'active'
+    };
+
+    data.products.push(newProduct);
+    data.nextId++;
+    
+    writeData(data);
+    res.status(201).json(newProduct);
+  } catch (error) {
+    console.error('제품 추가 오류:', error);
+    res.status(500).json({ error: '제품을 추가할 수 없습니다.' });
+  }
+});
+
+router.delete('/:id', (req, res) => {
+  try {
+    const productId = parseInt(req.params.id);
+    const data = readData();
+    
+    const productIndex = data.products.findIndex(p => p.id === productId);
+    if (productIndex === -1) {
+      return res.status(404).json({ error: '제품을 찾을 수 없습니다.' });
+    }
+
+    data.products.splice(productIndex, 1);
+    writeData(data);
+    
+    res.json({ message: '제품이 삭제되었습니다.' });
+  } catch (error) {
+    console.error('제품 삭제 오류:', error);
+    res.status(500).json({ error: '제품을 삭제할 수 없습니다.' });
   }
 });
 
