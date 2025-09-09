@@ -17,7 +17,16 @@
       "date": "2025-09-09T13:23:58.101Z",
       "views": 0,
       "category": "일반"
+    },
+    {
+      "id": 3,
+      "title": "테스트1",
+      "content": "테스트~~~~~",
+      "author": "관리자",
+      "date": "2025-09-09T14:01:59.072Z",
+      "views": 0,
+      "category": "일반"
     }
   ],
-  "nextId": 3
+  "nextId": 4
 }

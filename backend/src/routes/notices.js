@@ -2,6 +2,22 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+
+const uploadDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
 
 const dataPath = path.join(__dirname, '../../data/notices.json');
 
@@ -38,8 +54,8 @@ router.get('/', (req, res) => {
   }
 });
 
-// 공지사항 생성
-router.post('/', (req, res) => {
+// 공지사항 생성 (이미지 첨부 지원)
+router.post('/', upload.single('image'), (req, res) => {
   try {
     const data = readData();
     const newNotice = {
@@ -49,7 +65,8 @@ router.post('/', (req, res) => {
       author: req.body.author || '관리자',
       date: new Date().toISOString(),
       views: 0,
-      category: req.body.category || '일반'
+      category: req.body.category || '일반',
+      image: req.file ? `/uploads/${req.file.filename}` : null
     };
     
     data.notices.push(newNotice);

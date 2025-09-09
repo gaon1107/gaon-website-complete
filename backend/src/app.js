@@ -47,9 +47,11 @@ try {
   const noticeRoutes = require('./routes/notices');
   const productRoutes = require('./routes/products');
   const imageRoutes = require('./routes/images');
+  const companyRoutes = require('./routes/company');
   app.use('/api/notices', noticeRoutes);
   app.use('/api/products', productRoutes);
   app.use('/api/images', imageRoutes);
+  app.use('/api/company', companyRoutes);
 } catch(e) {
   console.log('라우트 파일 로딩 중 오류 (정상)');
 }

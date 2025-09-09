@@ -1,0 +1,28 @@
+{
+  "bannerImage": {
+    "id": 1757426474967,
+    "filename": "1757426474962-125732250.png",
+    "originalname": "20250909_224712.png",
+    "path": "/uploads/1757426474962-125732250.png",
+    "uploadDate": "2025-09-09T14:01:14.967Z",
+    "type": "banner"
+  },
+  "images": [
+    {
+      "id": 1757426448451,
+      "filename": "1757426448441-757764306.png",
+      "originalname": "20250909_224712.png",
+      "path": "/uploads/1757426448441-757764306.png",
+      "uploadDate": "2025-09-09T14:00:48.451Z",
+      "type": "banner"
+    },
+    {
+      "id": 1757426474967,
+      "filename": "1757426474962-125732250.png",
+      "originalname": "20250909_224712.png",
+      "path": "/uploads/1757426474962-125732250.png",
+      "uploadDate": "2025-09-09T14:01:14.967Z",
+      "type": "banner"
+    }
+  ]
+}

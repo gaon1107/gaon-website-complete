@@ -2,6 +2,22 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+
+const uploadDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
 
 const dataPath = path.join(__dirname, '../../data/products.json');
 
@@ -45,7 +61,7 @@ router.get('/', (req, res) => {
   }
 });
 
-router.post('/', (req, res) => {
+router.post('/', upload.single('image'), (req, res) => {
   try {
     const { name, category, description } = req.body;
     
@@ -60,7 +76,8 @@ router.post('/', (req, res) => {
       category,
       description,
       createdAt: new Date().toISOString().split('T')[0],
-      status: 'active'
+      status: 'active',
+      image: req.file ? `/uploads/${req.file.filename}` : null
     };
 
     data.products.push(newProduct);
