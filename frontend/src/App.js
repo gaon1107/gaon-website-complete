@@ -545,29 +545,18 @@ function App() {
     <div className="App">
       <header className="header">
         <div className="container">
-          <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-            {pageHistory.length > 1 && currentPage !== 'home' && (
-              <button 
-                onClick={goBack}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'white',
-                  cursor: 'pointer',
-                  fontSize: '20px',
-                  padding: '5px 10px',
-                  borderRadius: '5px',
-                  transition: 'background-color 0.3s'
-                }}
-                onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
-                onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
-                title="이전 페이지로"
-              >
-                ← 뒤로
-              </button>
-            )}
-            <h1>GAON</h1>
-          </div>
+          <img 
+            src={require('./assets/gaon-logo.png')} 
+            alt="GAON" 
+            onClick={() => showPage('home')}
+            style={{
+              height: '60px',
+              cursor: 'pointer',
+              transition: 'opacity 0.3s'
+            }}
+            onMouseOver={(e) => e.target.style.opacity = '0.8'}
+            onMouseOut={(e) => e.target.style.opacity = '1'}
+          />
           <nav>
             <a onClick={() => showPage('home')} style={{cursor: 'pointer'}}>홈</a>
             <a onClick={() => showPage('about')} style={{cursor: 'pointer'}}>회사소개</a>
