@@ -269,6 +269,7 @@ function App() {
       fetchNotices();
       fetchProducts();
       fetchBannerImage();
+      fetchCompanyInfo();
     }
   }, [isLoggedIn, adminSection, currentPage]);
 
@@ -310,19 +311,19 @@ function App() {
           <section className="features">
             <div className="container">
               <div className="feature-grid">
-                <div className="feature">
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('about')}>
                   <h3>회사소개</h3>
                   <p>다른 큰 경쟁으로 도약하겠습니다.</p>
                 </div>
-                <div className="feature">
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('history')}>
                   <h3>회사연혁</h3>
                   <p>지금껏 걸어온 길을 살펴보세요.</p>
                 </div>
-                <div className="feature">
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('business')}>
                   <h3>사업분야</h3>
                   <p>차별화된 서비스로 승부합니다.</p>
                 </div>
-                <div className="feature">
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('achievements')}>
                   <h3>주요실적</h3>
                   <p>다양한 분야에서 위상을 높이고 있습니다.</p>
                 </div>
