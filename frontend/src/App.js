@@ -11,6 +11,8 @@ function App() {
   const [expandedProducts, setExpandedProducts] = React.useState({});
   const [images, setImages] = React.useState([]);
   const [bannerImage, setBannerImage] = React.useState(null);
+  const [bannerImages, setBannerImages] = React.useState([]);
+  const [currentBannerIndex, setCurrentBannerIndex] = React.useState(0);
   const [companyInfo, setCompanyInfo] = React.useState({
     about: { title: "회사소개", content: "", images: [] },
     history: { title: "회사연혁", items: [] },
@@ -157,6 +159,16 @@ function App() {
     }
   };
 
+  const fetchBannerImages = async () => {
+    try {
+      const response = await fetch('http://localhost:5003/api/images/banners');
+      const data = await response.json();
+      setBannerImages(data.bannerImages || []);
+    } catch (error) {
+      console.error('배너 이미지들 로딩 실패:', error);
+    }
+  };
+
   const uploadImage = async (file, type = 'general') => {
     try {
       setLoading(true);
@@ -200,6 +212,27 @@ function App() {
     } catch (error) {
       console.error('배너 이미지 설정 실패:', error);
       alert('배너 이미지 설정에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleBannerImage = async (imageId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:5003/api/images/banner-toggle/${imageId}`, {
+        method: 'PUT'
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setBannerImages(result.bannerImages);
+        fetchBannerImages(); // 최신 상태로 다시 로드
+        alert(result.isInBanner ? '슬라이드쇼에 추가되었습니다.' : '슬라이드쇼에서 제거되었습니다.');
+      }
+    } catch (error) {
+      console.error('배너 이미지 토글 실패:', error);
+      alert('배너 이미지 토글에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -466,6 +499,7 @@ function App() {
     }
     if (isLoggedIn && adminSection === 'images') {
       fetchImages();
+      fetchBannerImages();
     }
     if (isLoggedIn && (adminSection === 'about' || adminSection === 'history' || adminSection === 'business' || adminSection === 'achievements')) {
       fetchCompanyInfo();
@@ -486,6 +520,7 @@ function App() {
       fetchNotices();
       fetchProducts();
       fetchBannerImage();
+      fetchBannerImages();
       fetchCompanyInfo();
     }
   }, [isLoggedIn, adminSection, currentPage]);
@@ -541,6 +576,19 @@ function App() {
     };
   }, [currentPage, pageHistory, isProductDetailOpen, isNoticeDetailOpen]);
 
+  // 배너 이미지 슬라이드쇼 효과 (2초 간격)
+  React.useEffect(() => {
+    if (bannerImages.length > 1 && currentPage === 'home') {
+      const interval = setInterval(() => {
+        setCurrentBannerIndex(prevIndex => 
+          prevIndex === bannerImages.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 2000); // 2초 간격
+
+      return () => clearInterval(interval);
+    }
+  }, [bannerImages.length, currentPage]);
+
   return (
     <div className="App">
       <header className="header">
@@ -575,14 +623,44 @@ function App() {
           <section 
             className="hero"
             style={{
-              background: bannerImage 
+              background: bannerImages.length > 0 
+                ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(http://localhost:5003${bannerImages[currentBannerIndex]?.path}) center/cover`
+                : bannerImage 
                 ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(http://localhost:5003${bannerImage.path}) center/cover`
-                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                : 'var(--gradient-dark)',
+              transition: 'background 0.8s ease-in-out'
             }}
           >
             <div className="hero-content">
               <h1>내일의 기술을 만듭니다</h1>
               <p>공인받는 기술력과 아이디어로<br/>차별화된 서비스와 최상의 결과를 만들어드립니다.</p>
+              
+              {bannerImages.length > 1 && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '20px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  gap: '8px',
+                  zIndex: 3
+                }}>
+                  {bannerImages.map((_, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        width: '12px',
+                        height: '12px',
+                        borderRadius: '50%',
+                        background: index === currentBannerIndex ? 'white' : 'rgba(255,255,255,0.5)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onClick={() => setCurrentBannerIndex(index)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </section>
           
@@ -1737,19 +1815,65 @@ function App() {
                     </button>
                   </div>
 
-                  {bannerImage && (
-                    <div style={{border: '2px solid #e74c3c', borderRadius: '8px', padding: '15px', background: '#fff5f5'}}>
-                      <h4 style={{color: '#e74c3c', margin: '0 0 10px 0'}}>현재 배너 이미지</h4>
-                      <img 
-                        src={`http://localhost:5003${bannerImage.path}`}
-                        alt="Current Banner"
-                        style={{width: '100%', maxWidth: '600px', height: '200px', objectFit: 'cover', borderRadius: '4px'}}
-                      />
-                      <p style={{margin: '10px 0 0 0', color: '#666', fontSize: '14px'}}>
-                        파일명: {bannerImage.originalname || bannerImage.filename}
-                      </p>
+                  <div style={{display: 'flex', gap: '20px', marginBottom: '20px'}}>
+                    {bannerImage && (
+                      <div style={{flex: 1, border: '2px solid #e74c3c', borderRadius: '8px', padding: '15px', background: '#fff5f5'}}>
+                        <h4 style={{color: '#e74c3c', margin: '0 0 10px 0'}}>현재 배너 이미지</h4>
+                        <img 
+                          src={`http://localhost:5003${bannerImage.path}`}
+                          alt="Current Banner"
+                          style={{width: '100%', maxWidth: '300px', height: '150px', objectFit: 'cover', borderRadius: '4px'}}
+                        />
+                        <p style={{margin: '10px 0 0 0', color: '#666', fontSize: '14px'}}>
+                          파일명: {bannerImage.originalname || bannerImage.filename}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div style={{flex: 1, border: '2px solid #007bff', borderRadius: '8px', padding: '15px', background: '#f0f8ff'}}>
+                      <h4 style={{color: '#007bff', margin: '0 0 10px 0'}}>
+                        슬라이드쇼 배너 ({bannerImages.length}개)
+                      </h4>
+                      {bannerImages.length > 0 ? (
+                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '8px'}}>
+                          {bannerImages.slice(0, 4).map((img, idx) => (
+                            <img 
+                              key={idx}
+                              src={`http://localhost:5003${img.path}`}
+                              alt={`Slideshow ${idx + 1}`}
+                              style={{width: '80px', height: '60px', objectFit: 'cover', borderRadius: '4px'}}
+                            />
+                          ))}
+                          {bannerImages.length > 4 && (
+                            <div style={{
+                              width: '80px', 
+                              height: '60px', 
+                              background: 'rgba(0,123,255,0.1)', 
+                              borderRadius: '4px', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              fontSize: '12px',
+                              color: '#007bff'
+                            }}>
+                              +{bannerImages.length - 4}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p style={{color: '#666', fontSize: '14px', margin: 0}}>
+                          슬라이드쇼용 이미지가 없습니다.<br/>
+                          아래에서 이미지를 "슬라이드 추가"로 추가하세요.
+                        </p>
+                      )}
+                      
+                      {bannerImages.length > 1 && (
+                        <p style={{margin: '10px 0 0 0', color: '#666', fontSize: '12px'}}>
+                          🔄 홈 배너에서 2초마다 자동 전환됩니다.
+                        </p>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 {/* 일반 이미지 업로드 섹션 */}
@@ -1807,33 +1931,71 @@ function App() {
                             <p style={{margin: '0 0 10px 0', fontSize: '12px', color: '#666'}}>
                               {new Date(image.uploadDate).toLocaleDateString()}
                             </p>
-                            {bannerImage && bannerImage.id === image.id ? (
-                              <span style={{
-                                background: '#e74c3c', 
-                                color: 'white', 
-                                padding: '4px 8px', 
-                                borderRadius: '12px', 
-                                fontSize: '11px'
-                              }}>
-                                현재 배너
-                              </span>
-                            ) : (
-                              <button
-                                style={{
-                                  padding: '6px 12px', 
-                                  background: '#28a745', 
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
+                              {bannerImage && bannerImage.id === image.id && (
+                                <span style={{
+                                  background: '#e74c3c', 
                                   color: 'white', 
-                                  border: 'none', 
-                                  borderRadius: '4px', 
-                                  fontSize: '12px',
-                                  cursor: 'pointer'
-                                }}
-                                onClick={() => setBannerImageById(image.id)}
-                                disabled={loading}
-                              >
-                                배너로 설정
-                              </button>
-                            )}
+                                  padding: '4px 8px', 
+                                  borderRadius: '12px', 
+                                  fontSize: '11px',
+                                  textAlign: 'center'
+                                }}>
+                                  현재 배너
+                                </span>
+                              )}
+                              
+                              {bannerImages.some(banner => banner.id === image.id) && (
+                                <span style={{
+                                  background: '#007bff', 
+                                  color: 'white', 
+                                  padding: '4px 8px', 
+                                  borderRadius: '12px', 
+                                  fontSize: '11px',
+                                  textAlign: 'center'
+                                }}>
+                                  슬라이드쇼
+                                </span>
+                              )}
+                              
+                              <div style={{display: 'flex', gap: '5px'}}>
+                                {!(bannerImage && bannerImage.id === image.id) && (
+                                  <button
+                                    style={{
+                                      flex: 1,
+                                      padding: '6px 8px', 
+                                      background: '#28a745', 
+                                      color: 'white', 
+                                      border: 'none', 
+                                      borderRadius: '4px', 
+                                      fontSize: '11px',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() => setBannerImageById(image.id)}
+                                    disabled={loading}
+                                  >
+                                    배너설정
+                                  </button>
+                                )}
+                                
+                                <button
+                                  style={{
+                                    flex: 1,
+                                    padding: '6px 8px', 
+                                    background: bannerImages.some(banner => banner.id === image.id) ? '#dc3545' : '#007bff', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    borderRadius: '4px', 
+                                    fontSize: '11px',
+                                    cursor: 'pointer'
+                                  }}
+                                  onClick={() => toggleBannerImage(image.id)}
+                                  disabled={loading}
+                                >
+                                  {bannerImages.some(banner => banner.id === image.id) ? '슬라이드 제거' : '슬라이드 추가'}
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}
