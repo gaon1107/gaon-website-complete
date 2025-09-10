@@ -13,6 +13,8 @@ function App() {
   const [bannerImage, setBannerImage] = React.useState(null);
   const [bannerImages, setBannerImages] = React.useState([]);
   const [currentBannerIndex, setCurrentBannerIndex] = React.useState(0);
+  const [previousBannerIndex, setPreviousBannerIndex] = React.useState(null);
+  const [isSliding, setIsSliding] = React.useState(false);
   const [companyInfo, setCompanyInfo] = React.useState({
     about: { title: "회사소개", content: "", images: [] },
     history: { title: "회사연혁", items: [] },
@@ -580,14 +582,26 @@ function App() {
   React.useEffect(() => {
     if (bannerImages.length > 1 && currentPage === 'home') {
       const interval = setInterval(() => {
-        setCurrentBannerIndex(prevIndex => 
-          prevIndex === bannerImages.length - 1 ? 0 : prevIndex + 1
-        );
+        if (!isSliding) {
+          setIsSliding(true);
+          setPreviousBannerIndex(currentBannerIndex);
+          
+          setTimeout(() => {
+            setCurrentBannerIndex(prevIndex => 
+              prevIndex === bannerImages.length - 1 ? 0 : prevIndex + 1
+            );
+            
+            setTimeout(() => {
+              setIsSliding(false);
+              setPreviousBannerIndex(null);
+            }, 50);
+          }, 400);
+        }
       }, 2000); // 2초 간격
 
       return () => clearInterval(interval);
     }
-  }, [bannerImages.length, currentPage]);
+  }, [bannerImages.length, currentPage, isSliding, currentBannerIndex]);
 
   return (
     <div className="App">
@@ -620,48 +634,93 @@ function App() {
 
       {currentPage === 'home' && (
         <>
-          <section 
-            className="hero"
-            style={{
-              background: bannerImages.length > 0 
-                ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(http://localhost:5003${bannerImages[currentBannerIndex]?.path}) center/cover`
-                : bannerImage 
-                ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(http://localhost:5003${bannerImage.path}) center/cover`
-                : 'var(--gradient-dark)',
-              transition: 'background 0.8s ease-in-out'
-            }}
-          >
-            <div className="hero-content">
+          <section className="hero hero-slideshow">
+            {/* 슬라이드 배경들 */}
+            {bannerImages.length > 0 ? (
+              <>
+                {bannerImages.map((image, index) => (
+                  <div
+                    key={`slide-${image.id}-${index}`}
+                    className={`hero-slide ${
+                      index === currentBannerIndex ? 'active' : 
+                      index === previousBannerIndex && isSliding ? 'exit' : ''
+                    }`}
+                    style={{
+                      background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(http://localhost:5003${image.path}) center/cover`
+                    }}
+                  />
+                ))}
+              </>
+            ) : bannerImage ? (
+              <div
+                className="hero-slide active"
+                style={{
+                  background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(http://localhost:5003${bannerImage.path}) center/cover`,
+                  position: 'relative',
+                  opacity: 1,
+                  transform: 'translateX(0)'
+                }}
+              />
+            ) : (
+              <div
+                className="hero-slide active"
+                style={{
+                  background: 'var(--gradient-dark)',
+                  position: 'relative',
+                  opacity: 1,
+                  transform: 'translateX(0)'
+                }}
+              />
+            )}
+            
+            <div className="hero-content" style={{position: 'relative', zIndex: 10}}>
               <h1>내일의 기술을 만듭니다</h1>
               <p>공인받는 기술력과 아이디어로<br/>차별화된 서비스와 최상의 결과를 만들어드립니다.</p>
-              
-              {bannerImages.length > 1 && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: '20px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  display: 'flex',
-                  gap: '8px',
-                  zIndex: 3
-                }}>
-                  {bannerImages.map((_, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        width: '12px',
-                        height: '12px',
-                        borderRadius: '50%',
-                        background: index === currentBannerIndex ? 'white' : 'rgba(255,255,255,0.5)',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                      onClick={() => setCurrentBannerIndex(index)}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
+            
+            {/* 인디케이터를 섹션 바깥으로 이동 */}
+            {bannerImages.length > 1 && (
+              <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                gap: '8px',
+                zIndex: 10
+              }}>
+                {bannerImages.map((_, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: index === currentBannerIndex 
+                        ? 'rgba(255,255,255,0.9)' 
+                        : 'rgba(255,255,255,0.4)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                    }}
+                    onClick={() => {
+                      if (!isSliding) {
+                        setIsSliding(true);
+                        setPreviousBannerIndex(currentBannerIndex);
+                        
+                        setTimeout(() => {
+                          setCurrentBannerIndex(index);
+                          setTimeout(() => {
+                            setIsSliding(false);
+                            setPreviousBannerIndex(null);
+                          }, 50);
+                        }, 400);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </section>
           
           <section className="features">
