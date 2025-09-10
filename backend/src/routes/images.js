@@ -50,6 +50,7 @@ router.get('/banners', (req, res) => {
     const data = readData();
     if (!data.bannerImages) {
       data.bannerImages = [];
+      writeData(data); // 필드가 없으면 추가하고 저장
     }
     res.json({ bannerImages: data.bannerImages });
   } catch (error) {

@@ -1,11 +1,11 @@
 {
   "bannerImage": {
-    "id": 1757426474967,
-    "filename": "1757426474962-125732250.png",
-    "originalname": "20250909_224712.png",
-    "path": "/uploads/1757426474962-125732250.png",
-    "uploadDate": "2025-09-09T14:01:14.967Z",
-    "type": "banner"
+    "id": 1757518018087,
+    "filename": "1757518018077-394650416.png",
+    "originalname": "Gemini_Generated_Image_47mx0x47mx0x47mx.png",
+    "path": "/uploads/1757518018077-394650416.png",
+    "uploadDate": "2025-09-10T15:26:58.087Z",
+    "type": "general"
   },
   "images": [
     {
@@ -23,6 +23,40 @@
       "path": "/uploads/1757426474962-125732250.png",
       "uploadDate": "2025-09-09T14:01:14.967Z",
       "type": "banner"
+    },
+    {
+      "id": 1757518018087,
+      "filename": "1757518018077-394650416.png",
+      "originalname": "Gemini_Generated_Image_47mx0x47mx0x47mx.png",
+      "path": "/uploads/1757518018077-394650416.png",
+      "uploadDate": "2025-09-10T15:26:58.087Z",
+      "type": "general"
+    },
+    {
+      "id": 1757518026978,
+      "filename": "1757518026968-134410178.png",
+      "originalname": "Gemini_Generated_Image_47mx0x47mx0x47mx.png",
+      "path": "/uploads/1757518026968-134410178.png",
+      "uploadDate": "2025-09-10T15:27:06.978Z",
+      "type": "general"
+    }
+  ],
+  "bannerImages": [
+    {
+      "id": 1757426474967,
+      "filename": "1757426474962-125732250.png",
+      "originalname": "20250909_224712.png",
+      "path": "/uploads/1757426474962-125732250.png",
+      "uploadDate": "2025-09-09T14:01:14.967Z",
+      "type": "banner"
+    },
+    {
+      "id": 1757518018087,
+      "filename": "1757518018077-394650416.png",
+      "originalname": "Gemini_Generated_Image_47mx0x47mx0x47mx.png",
+      "path": "/uploads/1757518018077-394650416.png",
+      "uploadDate": "2025-09-10T15:26:58.087Z",
+      "type": "general"
     }
   ]
 }
