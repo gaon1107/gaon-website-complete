@@ -55,7 +55,7 @@ try {
   app.use('/api/company', companyRoutes);
   app.use('/api/contacts', contactRoutes);
 } catch(e) {
-  console.log('라우트 파일 로딩 중 오류 (정상)');
+  console.error('라우트 파일 로딩 중 오류:', e);
 }
 
 // 기본 라우트

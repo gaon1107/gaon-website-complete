@@ -1,4 +1,14 @@
 {
+  "companyInfo": {
+    "companyName": "가온",
+    "ceoName": "박성헌",
+    "address": "경기 용인시 기흥구 강남로 3 (구갈동, 강남앤플러스) 5층 501-35호",
+    "businessNumber": "710-07-03011",
+    "tel": "031-281-3980",
+    "mobile": "010-6215-3980",
+    "email": "psh01@newgaon.co.kr",
+    "updatedAt": "2025-09-10"
+  },
   "about": {
     "title": "회사소개",
     "content": "GAON은 얼굴인식 기술을 활용한 혁신적인 솔루션을 제공하는 기업입니다.",

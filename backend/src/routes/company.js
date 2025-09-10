@@ -197,4 +197,33 @@ router.put('/achievements', upload.single('image'), (req, res) => {
   }
 });
 
+// 회사 기본정보 업데이트
+router.put('/info', (req, res) => {
+  try {
+    const data = readData();
+    const { companyName, ceoName, address, businessNumber, tel, mobile, email } = req.body;
+    
+    // companyInfo가 없으면 초기화
+    if (!data.companyInfo) {
+      data.companyInfo = {};
+    }
+    
+    // 각 필드 업데이트
+    if (companyName !== undefined) data.companyInfo.companyName = companyName;
+    if (ceoName !== undefined) data.companyInfo.ceoName = ceoName;
+    if (address !== undefined) data.companyInfo.address = address;
+    if (businessNumber !== undefined) data.companyInfo.businessNumber = businessNumber;
+    if (tel !== undefined) data.companyInfo.tel = tel;
+    if (mobile !== undefined) data.companyInfo.mobile = mobile;
+    if (email !== undefined) data.companyInfo.email = email;
+    
+    data.companyInfo.updatedAt = new Date().toISOString().split('T')[0];
+    
+    writeData(data);
+    res.json(data.companyInfo);
+  } catch (error) {
+    res.status(500).json({ error: '회사정보를 업데이트할 수 없습니다.' });
+  }
+});
+
 module.exports = router;

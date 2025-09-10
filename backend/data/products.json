@@ -33,7 +33,25 @@
       "description": "테스트~~~",
       "createdAt": "2025-09-09",
       "status": "active"
+    },
+    {
+      "id": 4,
+      "name": "얼굴인식 다말기",
+      "category": "GF-KIDS",
+      "description": "99.9%의 인식율!!\r\n최저가의 경제성",
+      "createdAt": "2025-09-10",
+      "status": "active",
+      "image": "/uploads/1757495331795-189528045.png"
+    },
+    {
+      "id": 5,
+      "name": "테스트",
+      "category": "GF-KIDS",
+      "description": "테스트1",
+      "createdAt": "2025-09-10",
+      "status": "active",
+      "image": "/uploads/1757495382922-385143494.png"
     }
   ],
-  "nextId": 4
+  "nextId": 6
 }

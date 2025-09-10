@@ -17,6 +17,15 @@ function App() {
     business: { title: "사업분야", items: [] },
     achievements: { title: "주요실적", items: [] }
   });
+  const [companyBasicInfo, setCompanyBasicInfo] = React.useState({
+    companyName: "가온",
+    ceoName: "박성헌",
+    address: "경기 용인시 기흥구 강남로 3 (구갈동, 강남앤플러스) 5층 501-35호",
+    businessNumber: "710-07-03011",
+    tel: "031-281-3980",
+    mobile: "010-6215-3980",
+    email: "psh01@newgaon.co.kr"
+  });
   const [contactForm, setContactForm] = React.useState({
     name: '',
     contact: '',
@@ -27,12 +36,32 @@ function App() {
   const [contactSubmitting, setContactSubmitting] = React.useState(false);
   const [contacts, setContacts] = React.useState([]);
   const fileInputRef = React.useRef(null);
+  const [selectedProduct, setSelectedProduct] = React.useState(null);
+  const [isProductDetailOpen, setIsProductDetailOpen] = React.useState(false);
+  const [selectedNotice, setSelectedNotice] = React.useState(null);
+  const [isNoticeDetailOpen, setIsNoticeDetailOpen] = React.useState(false);
+  const [pageHistory, setPageHistory] = React.useState(['home']);
 
   const showPage = (page) => {
     if (page === 'admin' && !isLoggedIn) {
       setCurrentPage('login');
+      setPageHistory(prev => [...prev, 'login']);
+      window.history.pushState({page: 'login'}, '', `/#login`);
     } else {
       setCurrentPage(page);
+      setPageHistory(prev => [...prev, page]);
+      window.history.pushState({page}, '', `/#${page}`);
+    }
+  };
+
+  const goBack = () => {
+    if (pageHistory.length > 1) {
+      const newHistory = [...pageHistory];
+      newHistory.pop(); // 현재 페이지 제거
+      const previousPage = newHistory[newHistory.length - 1]; // 이전 페이지
+      setPageHistory(newHistory);
+      setCurrentPage(previousPage);
+      window.history.pushState({page: previousPage}, '', `/#${previousPage}`);
     }
   };
 
@@ -44,6 +73,8 @@ function App() {
     if (username === 'admin' && password === 'admin123') {
       setIsLoggedIn(true);
       setCurrentPage('admin');
+      setPageHistory(prev => [...prev, 'admin']);
+      window.history.pushState({page: 'admin'}, '', '/#admin');
       alert('로그인 성공!');
     } else {
       alert('아이디 또는 비밀번호가 잘못되었습니다.');
@@ -54,6 +85,8 @@ function App() {
     setIsLoggedIn(false);
     setCurrentPage('home');
     setAdminSection('dashboard');
+    setPageHistory(prev => [...prev, 'home']);
+    window.history.pushState({page: 'home'}, '', '/#home');
     alert('로그아웃되었습니다.');
   };
 
@@ -73,6 +106,15 @@ function App() {
       groups[category].push(product);
       return groups;
     }, {});
+  };
+
+  // 홈 화면에 표시할 제품을 선택하는 함수 (최신 순으로 정렬)
+  const getRepresentativeProducts = (products) => {
+    // 모든 제품을 최신 순으로 정렬 (id가 높은 순)
+    const sortedProducts = products.sort((a, b) => (b.id || 0) - (a.id || 0));
+    
+    // 최대 6개까지만 표시 (레이아웃 고려)
+    return sortedProducts.slice(0, 6);
   };
 
   const fetchNotices = async () => {
@@ -221,9 +263,14 @@ function App() {
   // 회사 정보 관련 함수들
   const fetchCompanyInfo = async () => {
     try {
-      const response = await fetch('http://localhost:5003/api/company');
+      const response = await fetch('http://localhost:5004/api/company');
       const data = await response.json();
       setCompanyInfo(data);
+      
+      // 회사 기본정보가 있으면 설정
+      if (data.companyInfo) {
+        setCompanyBasicInfo(data.companyInfo);
+      }
     } catch (error) {
       console.error('회사 정보 로딩 실패:', error);
     }
@@ -232,7 +279,7 @@ function App() {
   const updateCompanySection = async (section, formData) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5003/api/company/${section}`, {
+      const response = await fetch(`http://localhost:5004/api/company/${section}`, {
         method: 'PUT',
         body: formData
       });
@@ -248,6 +295,33 @@ function App() {
     } catch (error) {
       console.error('정보 업데이트 실패:', error);
       alert('정보 업데이트에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 회사 기본정보 수정 함수
+  const updateCompanyBasicInfo = async (updatedInfo) => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5004/api/company/info', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedInfo)
+      });
+      
+      if (response.ok) {
+        const updatedData = await response.json();
+        setCompanyBasicInfo(updatedData);
+        alert('회사 정보가 수정되었습니다.');
+      } else {
+        alert('정보 수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('정보 수정 오류:', error);
+      alert('정보 수정 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -350,6 +424,39 @@ function App() {
     }
   };
 
+  // 제품 상세보기 함수들 
+  const openProductDetail = (product) => {
+    setSelectedProduct(product);
+    setIsProductDetailOpen(true);
+    // 모달 열기를 히스토리에 추가
+    window.history.pushState({modalType: 'product', modalData: product}, '', window.location.href);
+  };
+
+  const closeProductDetail = () => {
+    setIsProductDetailOpen(false);
+    setSelectedProduct(null);
+    // 모달 닫을 때 히스토리에서 제거 (뒤로가기 한 번)
+    if (window.history.state && window.history.state.modalType === 'product') {
+      window.history.back();
+    }
+  };
+
+  const openNoticeDetail = (notice) => {
+    setSelectedNotice(notice);
+    setIsNoticeDetailOpen(true);
+    // 모달 열기를 히스토리에 추가
+    window.history.pushState({modalType: 'notice', modalData: notice}, '', window.location.href);
+  };
+
+  const closeNoticeDetail = () => {
+    setIsNoticeDetailOpen(false);
+    setSelectedNotice(null);
+    // 모달 닫을 때 히스토리에서 제거 (뒤로가기 한 번)
+    if (window.history.state && window.history.state.modalType === 'notice') {
+      window.history.back();
+    }
+  };
+
   React.useEffect(() => {
     if (isLoggedIn && adminSection === 'notices') {
       fetchNotices();
@@ -383,11 +490,84 @@ function App() {
     }
   }, [isLoggedIn, adminSection, currentPage]);
 
+  React.useEffect(() => {
+    // 브라우저의 뒤로가기/앞으로가기 버튼을 처리
+    const handlePopState = (event) => {
+      // 모달이 열려있는 상태에서 뒤로가기를 누른 경우
+      if (isProductDetailOpen || isNoticeDetailOpen) {
+        closeProductDetail();
+        closeNoticeDetail();
+        return;
+      }
+
+      if (event.state && event.state.modalType) {
+        // 모달 상태 복원
+        if (event.state.modalType === 'product') {
+          setSelectedProduct(event.state.modalData);
+          setIsProductDetailOpen(true);
+        } else if (event.state.modalType === 'notice') {
+          setSelectedNotice(event.state.modalData);
+          setIsNoticeDetailOpen(true);
+        }
+      } else if (event.state && event.state.page) {
+        setCurrentPage(event.state.page);
+        // 페이지 히스토리를 업데이트하지 않고 단순히 페이지만 변경
+      } else {
+        // URL 해시에서 페이지 추출
+        const hash = window.location.hash.substring(1);
+        if (hash && hash !== currentPage) {
+          setCurrentPage(hash);
+        } else if (!hash) {
+          setCurrentPage('home');
+        }
+      }
+    };
+
+    // 컴포넌트 마운트시 URL 해시 확인
+    const hash = window.location.hash.substring(1);
+    if (hash && hash !== currentPage) {
+      setCurrentPage(hash);
+      if (!pageHistory.includes(hash)) {
+        setPageHistory(prev => [...prev, hash]);
+      }
+    } else if (!hash && currentPage !== 'home') {
+      window.history.replaceState({page: 'home'}, '', '/#home');
+    }
+
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [currentPage, pageHistory, isProductDetailOpen, isNoticeDetailOpen]);
+
   return (
     <div className="App">
       <header className="header">
         <div className="container">
-          <h1>GAON</h1>
+          <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+            {pageHistory.length > 1 && currentPage !== 'home' && (
+              <button 
+                onClick={goBack}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  transition: 'background-color 0.3s'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+                title="이전 페이지로"
+              >
+                ← 뒤로
+              </button>
+            )}
+            <h1>GAON</h1>
+          </div>
           <nav>
             <a onClick={() => showPage('home')} style={{cursor: 'pointer'}}>홈</a>
             <a onClick={() => showPage('about')} style={{cursor: 'pointer'}}>회사소개</a>
@@ -414,7 +594,6 @@ function App() {
             <div className="hero-content">
               <h1>내일의 기술을 만듭니다</h1>
               <p>공인받는 기술력과 아이디어로<br/>차별화된 서비스와 최상의 결과를 만들어드립니다.</p>
-              <button className="cta-button">자세히 알아보기</button>
             </div>
           </section>
           
@@ -441,67 +620,39 @@ function App() {
             </div>
           </section>
 
-          {/* 최신 공지사항 섹션 */}
-          {notices.length > 0 && (
-            <section style={{padding: '60px 0', background: '#f8f9fa'}}>
-              <div className="container">
-                <h2 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>최신 공지사항</h2>
-                <div style={{maxWidth: '800px', margin: '0 auto'}}>
-                  {notices.slice(0, 3).map((notice, index) => (
-                    <div key={index} style={{
-                      background: 'white', 
-                      padding: '20px', 
-                      marginBottom: '15px', 
-                      borderRadius: '8px', 
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                      cursor: 'pointer'
-                    }} onClick={() => showPage('notices')}>
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                        <div style={{flex: 1}}>
-                          <div style={{marginBottom: '10px'}}>
-                            <span style={{background: '#e74c3c', color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', marginRight: '10px'}}>공지</span>
-                            <strong style={{color: '#333'}}>{notice.title}</strong>
-                          </div>
-                          {notice.content && (
-                            <p style={{margin: '0', color: '#666', fontSize: '14px'}}>
-                              {notice.content.length > 100 ? notice.content.substring(0, 100) + '...' : notice.content}
-                            </p>
-                          )}
-                          <span style={{color: '#999', fontSize: '12px', display: 'block', marginTop: '10px'}}>{notice.date}</span>
-                        </div>
-                        {notice.image && (
-                          <div style={{marginLeft: '15px'}}>
-                            <img 
-                              src={`http://localhost:5003${notice.image}`} 
-                              alt={notice.title}
-                              style={{width: '80px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  <div style={{textAlign: 'center', marginTop: '20px'}}>
-                    <button 
-                      onClick={() => showPage('notices')}
-                      style={{padding: '10px 30px', background: '#667eea', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer'}}
-                    >
-                      더 많은 공지사항 보기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
 
           {/* 주요 제품 소개 섹션 */}
           {products.length > 0 && (
             <section style={{padding: '60px 0', background: 'white'}}>
               <div className="container">
                 <h2 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>주요 제품</h2>
-                <div className="feature-grid">
-                  {products.slice(0, 4).map((product, index) => (
-                    <div key={index} className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('products')}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '30px'
+                }}>
+                  {getRepresentativeProducts(products).map((product, index) => (
+                    <div 
+                      key={index} 
+                      style={{
+                        cursor: 'pointer',
+                        background: 'white',
+                        padding: '30px',
+                        borderRadius: '15px',
+                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+                        transition: 'all 0.3s ease',
+                        border: '1px solid #eee'
+                      }} 
+                      onClick={() => openProductDetail(product)}
+                      onMouseOver={(e) => {
+                        e.target.style.transform = 'translateY(-5px)';
+                        e.target.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                      }}
+                    >
                       <h3>{product.name}</h3>
                       <div style={{marginBottom: '10px'}}>
                         <span style={{background: '#e74c3c', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px'}}>
@@ -524,132 +675,503 @@ function App() {
             </section>
           )}
 
-          {/* 문의하기 섹션 */}
+          {/* 공지사항 & 문의하기 섹션 */}
           <section style={{padding: '80px 0', background: '#f8f9fa'}}>
             <div className="container">
-              <h2 style={{textAlign: 'center', marginBottom: '50px', color: '#333', fontSize: '32px'}}>문의하기</h2>
-              <div style={{maxWidth: '600px', margin: '0 auto', background: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}}>
-                <form onSubmit={handleContactSubmit}>
-                  <div style={{marginBottom: '20px'}}>
-                    <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>이름 *</label>
-                    <input
-                      type="text"
-                      value={contactForm.name}
-                      onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e1e8ed',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        transition: 'border-color 0.3s',
-                        boxSizing: 'border-box'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                      onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
-                      required
-                    />
-                  </div>
-                  
-                  <div style={{marginBottom: '20px'}}>
-                    <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>연락처 *</label>
-                    <input
-                      type="text"
-                      value={contactForm.contact}
-                      onChange={(e) => setContactForm({...contactForm, contact: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e1e8ed',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        transition: 'border-color 0.3s',
-                        boxSizing: 'border-box'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                      onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
-                      placeholder="전화번호, 이메일 등"
-                      required
-                    />
-                  </div>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', maxWidth: '1200px', margin: '0 auto'}}>
+                
+                {/* 공지사항 */}
+                <div style={{background: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}}>
+                  <h2 style={{textAlign: 'center', marginBottom: '30px', color: '#333', fontSize: '28px'}}>📢 최신 공지사항</h2>
+                  {notices.length > 0 ? (
+                    <div>
+                      {notices.slice(0, 3).map((notice, index) => (
+                        <div key={index} style={{
+                          padding: '15px', 
+                          marginBottom: '15px', 
+                          borderRadius: '8px', 
+                          border: '1px solid #e1e8ed',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease'
+                        }} 
+                        onClick={() => openNoticeDetail(notice)}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = '#f8f9fa';
+                          e.currentTarget.style.borderColor = '#667eea';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = 'white';
+                          e.currentTarget.style.borderColor = '#e1e8ed';
+                        }}
+                        >
+                          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                            <div style={{flex: 1}}>
+                              <div style={{marginBottom: '8px'}}>
+                                <span style={{background: '#e74c3c', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', marginRight: '8px'}}>공지</span>
+                                <strong style={{color: '#333', fontSize: '14px'}}>{notice.title}</strong>
+                              </div>
+                              {notice.content && (
+                                <p style={{margin: '0', color: '#666', fontSize: '12px', lineHeight: '1.4'}}>
+                                  {notice.content.length > 80 ? notice.content.substring(0, 80) + '...' : notice.content}
+                                </p>
+                              )}
+                              <span style={{color: '#999', fontSize: '11px', display: 'block', marginTop: '8px'}}>{notice.date}</span>
+                            </div>
+                            {notice.image && (
+                              <div style={{marginLeft: '10px'}}>
+                                <img 
+                                  src={`http://localhost:5003${notice.image}`} 
+                                  alt={notice.title}
+                                  style={{width: '60px', height: '45px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      <div style={{textAlign: 'center', marginTop: '20px'}}>
+                        <button 
+                          onClick={() => showPage('notices')}
+                          style={{
+                            padding: '10px 25px', 
+                            background: '#667eea', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '25px', 
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            transition: 'background-color 0.3s'
+                          }}
+                          onMouseOver={(e) => e.target.style.background = '#5a6fd8'}
+                          onMouseOut={(e) => e.target.style.background = '#667eea'}
+                        >
+                          더 많은 공지사항 보기
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{textAlign: 'center', padding: '40px', color: '#999'}}>
+                      등록된 공지사항이 없습니다.
+                    </div>
+                  )}
+                </div>
 
-                  <div style={{marginBottom: '20px'}}>
-                    <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>문의내용 *</label>
-                    <textarea
-                      value={contactForm.content}
-                      onChange={(e) => setContactForm({...contactForm, content: e.target.value})}
-                      rows="6"
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e1e8ed',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        transition: 'border-color 0.3s',
-                        resize: 'vertical',
-                        boxSizing: 'border-box'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                      onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
-                      placeholder="문의하실 내용을 자세히 작성해 주세요."
-                      required
-                    />
-                  </div>
-
-                  <div style={{marginBottom: '20px'}}>
-                    <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>파일 첨부</label>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      onChange={(e) => setContactForm({...contactForm, file: e.target.files[0]})}
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        border: '2px solid #e1e8ed',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box'
-                      }}
-                      accept="image/*,.pdf,.doc,.docx,.txt"
-                    />
-                    <small style={{color: '#666', fontSize: '12px'}}>
-                      지원 형식: 이미지(jpg, png, gif), 문서(pdf, doc, docx, txt) / 최대 5MB
-                    </small>
-                  </div>
-
-                  <div style={{marginBottom: '30px'}}>
-                    <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
+                {/* 문의하기 */}
+                <div style={{background: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}}>
+                  <h2 style={{textAlign: 'center', marginBottom: '30px', color: '#333', fontSize: '28px'}}>📞 문의하기</h2>
+                  <form onSubmit={handleContactSubmit}>
+                    <div style={{marginBottom: '15px'}}>
+                      <label style={{display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#333', fontSize: '14px'}}>이름 *</label>
                       <input
-                        type="checkbox"
-                        checked={contactForm.isPublic}
-                        onChange={(e) => setContactForm({...contactForm, isPublic: e.target.checked})}
-                        style={{marginRight: '8px'}}
+                        type="text"
+                        value={contactForm.name}
+                        onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '2px solid #e1e8ed',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          transition: 'border-color 0.3s',
+                          boxSizing: 'border-box'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                        onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                        required
                       />
-                      <span style={{color: '#333', fontSize: '14px'}}>공개 문의 (다른 사용자도 볼 수 있습니다)</span>
-                    </label>
+                    </div>
+                    
+                    <div style={{marginBottom: '15px'}}>
+                      <label style={{display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#333', fontSize: '14px'}}>연락처 *</label>
+                      <input
+                        type="text"
+                        value={contactForm.contact}
+                        onChange={(e) => setContactForm({...contactForm, contact: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '2px solid #e1e8ed',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          transition: 'border-color 0.3s',
+                          boxSizing: 'border-box'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                        onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                        placeholder="전화번호, 이메일 등"
+                        required
+                      />
+                    </div>
+
+                    <div style={{marginBottom: '15px'}}>
+                      <label style={{display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#333', fontSize: '14px'}}>문의내용 *</label>
+                      <textarea
+                        value={contactForm.content}
+                        onChange={(e) => setContactForm({...contactForm, content: e.target.value})}
+                        rows="4"
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '2px solid #e1e8ed',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          transition: 'border-color 0.3s',
+                          resize: 'vertical',
+                          boxSizing: 'border-box'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                        onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                        placeholder="문의하실 내용을 자세히 작성해 주세요."
+                        required
+                      />
+                    </div>
+
+                    <div style={{marginBottom: '15px'}}>
+                      <label style={{display: 'block', marginBottom: '6px', fontWeight: 'bold', color: '#333', fontSize: '14px'}}>파일 첨부</label>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        onChange={(e) => setContactForm({...contactForm, file: e.target.files[0]})}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '2px solid #e1e8ed',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          boxSizing: 'border-box'
+                        }}
+                        accept="image/*,.pdf,.doc,.docx,.txt"
+                      />
+                      <small style={{color: '#666', fontSize: '11px'}}>
+                        이미지, PDF, 문서 등 (최대 5MB)
+                      </small>
+                    </div>
+
+                    <div style={{marginBottom: '20px'}}>
+                      <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
+                        <input
+                          type="checkbox"
+                          checked={contactForm.isPublic}
+                          onChange={(e) => setContactForm({...contactForm, isPublic: e.target.checked})}
+                          style={{marginRight: '6px'}}
+                        />
+                        <span style={{color: '#333', fontSize: '13px'}}>공개 문의</span>
+                      </label>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={contactSubmitting}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        background: contactSubmitting ? '#ccc' : '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        cursor: contactSubmitting ? 'not-allowed' : 'pointer',
+                        transition: 'background-color 0.3s'
+                      }}
+                      onMouseOver={(e) => !contactSubmitting && (e.target.style.background = '#5a6fd8')}
+                      onMouseOut={(e) => !contactSubmitting && (e.target.style.background = '#667eea')}
+                    >
+                      {contactSubmitting ? '제출 중...' : '문의하기'}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 제품 상세보기 모달 */}
+          {isProductDetailOpen && selectedProduct && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000
+            }} onClick={closeProductDetail}>
+              <div style={{
+                backgroundColor: 'white',
+                borderRadius: '15px',
+                maxWidth: '800px',
+                maxHeight: '90vh',
+                width: '90%',
+                overflow: 'auto',
+                position: 'relative'
+              }} onClick={(e) => e.stopPropagation()}>
+                
+                {/* 닫기 버튼 */}
+                <button 
+                  onClick={closeProductDetail}
+                  style={{
+                    position: 'absolute',
+                    top: '15px',
+                    right: '20px',
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                    color: '#999',
+                    zIndex: 1001
+                  }}
+                >
+                  ✕
+                </button>
+
+                <div style={{padding: '40px'}}>
+                  {/* 제품 이미지 */}
+                  {selectedProduct.image && (
+                    <div style={{textAlign: 'center', marginBottom: '30px'}}>
+                      <img 
+                        src={`http://localhost:5003${selectedProduct.image}`}
+                        alt={selectedProduct.name}
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '300px',
+                          objectFit: 'contain',
+                          borderRadius: '10px',
+                          boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* 제품 정보 */}
+                  <div style={{textAlign: 'center', marginBottom: '20px'}}>
+                    <span style={{
+                      background: '#e74c3c', 
+                      color: 'white', 
+                      padding: '6px 15px', 
+                      borderRadius: '20px', 
+                      fontSize: '14px',
+                      fontWeight: 'bold'
+                    }}>
+                      {selectedProduct.category}
+                    </span>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={contactSubmitting}
-                    style={{
-                      width: '100%',
-                      padding: '15px',
-                      background: contactSubmitting ? '#ccc' : '#667eea',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
+                  <h1 style={{
+                    textAlign: 'center', 
+                    color: '#333', 
+                    marginBottom: '30px',
+                    fontSize: '32px'
+                  }}>
+                    {selectedProduct.name}
+                  </h1>
+
+                  <div style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '30px',
+                    borderRadius: '10px',
+                    marginBottom: '30px'
+                  }}>
+                    <h3 style={{color: '#333', marginBottom: '15px', fontSize: '20px'}}>📝 제품 설명</h3>
+                    <p style={{
+                      color: '#555',
+                      lineHeight: '1.8',
                       fontSize: '16px',
-                      fontWeight: 'bold',
-                      cursor: contactSubmitting ? 'not-allowed' : 'pointer',
-                      transition: 'background-color 0.3s'
-                    }}
-                    onMouseOver={(e) => !contactSubmitting && (e.target.style.background = '#5a6fd8')}
-                    onMouseOut={(e) => !contactSubmitting && (e.target.style.background = '#667eea')}
-                  >
-                    {contactSubmitting ? '제출 중...' : '문의하기'}
-                  </button>
-                </form>
+                      margin: 0
+                    }}>
+                      {selectedProduct.description}
+                    </p>
+                  </div>
+
+                  {/* 추가 정보가 있다면 표시 */}
+                  {selectedProduct.features && (
+                    <div style={{
+                      backgroundColor: '#fff',
+                      border: '1px solid #e1e8ed',
+                      padding: '25px',
+                      borderRadius: '10px',
+                      marginBottom: '30px'
+                    }}>
+                      <h3 style={{color: '#333', marginBottom: '15px', fontSize: '18px'}}>✨ 주요 특징</h3>
+                      <ul style={{color: '#555', lineHeight: '1.6', paddingLeft: '20px'}}>
+                        {(Array.isArray(selectedProduct.features) 
+                          ? selectedProduct.features 
+                          : selectedProduct.features?.split('\n') || []
+                        ).map((feature, index) => (
+                          feature && feature.trim() && <li key={index} style={{marginBottom: '5px'}}>{feature.trim()}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* 문의하기 버튼 */}
+                  <div style={{textAlign: 'center'}}>
+                    <button
+                      onClick={() => {
+                        closeProductDetail();
+                        // 문의하기 섹션으로 스크롤
+                        setTimeout(() => {
+                          const contactSection = document.querySelector('[style*="공지사항 & 문의하기"]')?.closest('section');
+                          if (contactSection) {
+                            contactSection.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }, 100);
+                      }}
+                      style={{
+                        background: '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        padding: '15px 40px',
+                        borderRadius: '30px',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseOver={(e) => e.target.style.background = '#5a6fd8'}
+                      onMouseOut={(e) => e.target.style.background = '#667eea'}
+                    >
+                      📞 이 제품 문의하기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 공지사항 상세보기 모달 */}
+          {isNoticeDetailOpen && selectedNotice && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000
+            }} onClick={closeNoticeDetail}>
+              <div style={{
+                backgroundColor: 'white',
+                borderRadius: '15px',
+                maxWidth: '700px',
+                maxHeight: '80vh',
+                width: '90%',
+                overflow: 'auto',
+                position: 'relative'
+              }} onClick={(e) => e.stopPropagation()}>
+                
+                {/* 닫기 버튼 */}
+                <button 
+                  onClick={closeNoticeDetail}
+                  style={{
+                    position: 'absolute',
+                    top: '15px',
+                    right: '20px',
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                    color: '#999',
+                    zIndex: 1001
+                  }}
+                >
+                  ×
+                </button>
+                
+                <div style={{padding: '40px'}}>
+                  {/* 공지사항 헤더 */}
+                  <div style={{textAlign: 'center', marginBottom: '30px'}}>
+                    <span style={{
+                      background: '#e74c3c', 
+                      color: 'white', 
+                      padding: '8px 20px', 
+                      borderRadius: '20px', 
+                      fontSize: '14px',
+                      fontWeight: 'bold'
+                    }}>
+                      📢 공지사항
+                    </span>
+                  </div>
+
+                  {/* 공지사항 제목 */}
+                  <h1 style={{
+                    textAlign: 'center',
+                    color: '#333',
+                    marginBottom: '20px',
+                    fontSize: '28px'
+                  }}>
+                    {selectedNotice.title}
+                  </h1>
+
+                  {/* 작성일 */}
+                  <div style={{
+                    textAlign: 'center',
+                    color: '#999',
+                    marginBottom: '30px',
+                    fontSize: '14px'
+                  }}>
+                    작성일: {selectedNotice.date}
+                  </div>
+
+                  {/* 공지사항 내용 */}
+                  <div style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '30px',
+                    borderRadius: '10px',
+                    marginBottom: '30px'
+                  }}>
+                    <div style={{
+                      color: '#333',
+                      lineHeight: '1.8',
+                      fontSize: '16px',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {selectedNotice.content}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 회사정보 Footer */}
+          <section style={{
+            background: '#2c3e50',
+            color: 'white',
+            padding: '40px 0',
+            marginTop: '60px',
+            borderTop: '1px solid #34495e'
+          }}>
+            <div className="container">
+              <div style={{
+                textAlign: 'center',
+                lineHeight: '1.8',
+                fontSize: '14px'
+              }}>
+                <div style={{ marginBottom: '15px' }}>
+                  <strong style={{ fontSize: '16px' }}>{companyBasicInfo.companyName}</strong> | 
+                  대표자 : {companyBasicInfo.ceoName} | 
+                  소재지 : {companyBasicInfo.address} | 
+                  사업자등록번호 : {companyBasicInfo.businessNumber}
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                  TEL : {companyBasicInfo.tel} | 
+                  HP : {companyBasicInfo.mobile} | 
+                  E-mail : {companyBasicInfo.email}
+                </div>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#bdc3c7',
+                  borderTop: '1px solid #34495e',
+                  paddingTop: '15px'
+                }}>
+                  {companyBasicInfo.companyName} All Rights Reserved.
+                </div>
               </div>
             </div>
           </section>
@@ -864,7 +1386,18 @@ function App() {
             <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
               {notices.length > 0 ? (
                 notices.map((notice, index) => (
-                  <div key={index} style={{borderBottom: index < notices.length - 1 ? '1px solid #eee' : 'none', padding: '15px 0'}}>
+                  <div 
+                    key={index} 
+                    style={{
+                      borderBottom: index < notices.length - 1 ? '1px solid #eee' : 'none', 
+                      padding: '15px 0',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.3s ease'
+                    }}
+                    onClick={() => openNoticeDetail(notice)}
+                    onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
+                  >
                     <span style={{background: '#e74c3c', color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', marginRight: '10px'}}>공지</span>
                     {notice.title}
                     <span style={{float: 'right', color: '#999'}}>{notice.date}</span>
@@ -966,6 +1499,10 @@ function App() {
                 <div className="feature" style={{cursor: 'pointer'}} onClick={() => setAdminSection('achievements')}>
                   <h3>🏆 주요실적 관리</h3>
                   <p>주요 실적을 관리합니다</p>
+                </div>
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => setAdminSection('companyInfo')}>
+                  <h3>🏢 회사정보 관리</h3>
+                  <p>회사 기본정보를 관리합니다</p>
                 </div>
                 <div className="feature" style={{cursor: 'pointer'}} onClick={() => setAdminSection('statistics')}>
                   <h3>📊 통계 분석</h3>
@@ -1858,6 +2395,217 @@ function App() {
               </div>
             )}
 
+            {adminSection === 'companyInfo' && (
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                  <h2>회사정보 관리</h2>
+                  <button 
+                    onClick={() => setAdminSection('dashboard')}
+                    style={{padding: '8px 16px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                  >
+                    대시보드로 돌아가기
+                  </button>
+                </div>
+                
+                <div style={{background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const updatedInfo = {
+                      companyName: formData.get('companyName'),
+                      ceoName: formData.get('ceoName'),
+                      address: formData.get('address'),
+                      businessNumber: formData.get('businessNumber'),
+                      tel: formData.get('tel'),
+                      mobile: formData.get('mobile'),
+                      email: formData.get('email')
+                    };
+                    updateCompanyBasicInfo(updatedInfo);
+                  }}>
+                    <div style={{display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'}}>
+                      <div>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>
+                          회사명
+                        </label>
+                        <input
+                          type="text"
+                          name="companyName"
+                          defaultValue={companyBasicInfo.companyName}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>
+                          대표자명
+                        </label>
+                        <input
+                          type="text"
+                          name="ceoName"
+                          defaultValue={companyBasicInfo.ceoName}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                          }}
+                        />
+                      </div>
+                      
+                      <div style={{gridColumn: '1 / -1'}}>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>
+                          주소
+                        </label>
+                        <input
+                          type="text"
+                          name="address"
+                          defaultValue={companyBasicInfo.address}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>
+                          사업자등록번호
+                        </label>
+                        <input
+                          type="text"
+                          name="businessNumber"
+                          defaultValue={companyBasicInfo.businessNumber}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>
+                          전화번호
+                        </label>
+                        <input
+                          type="text"
+                          name="tel"
+                          defaultValue={companyBasicInfo.tel}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>
+                          휴대전화
+                        </label>
+                        <input
+                          type="text"
+                          name="mobile"
+                          defaultValue={companyBasicInfo.mobile}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>
+                          이메일
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          defaultValue={companyBasicInfo.email}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                          }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div style={{textAlign: 'center', marginTop: '30px'}}>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        style={{
+                          padding: '12px 30px',
+                          background: loading ? '#ccc' : '#667eea',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          cursor: loading ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          if (!loading) {
+                            e.target.style.background = '#5a67d8';
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (!loading) {
+                            e.target.style.background = '#667eea';
+                          }
+                        }}
+                      >
+                        {loading ? '저장 중...' : '정보 수정'}
+                      </button>
+                    </div>
+                  </form>
+                  
+                  <div style={{
+                    marginTop: '30px',
+                    padding: '20px',
+                    background: '#f8f9fa',
+                    borderRadius: '8px',
+                    border: '1px solid #e9ecef'
+                  }}>
+                    <h4 style={{margin: '0 0 15px 0', color: '#333'}}>현재 홈페이지에 표시되는 정보</h4>
+                    <div style={{fontSize: '14px', lineHeight: '1.8', color: '#666'}}>
+                      <div><strong>{companyBasicInfo.companyName}</strong> | 대표자 : {companyBasicInfo.ceoName} | 소재지 : {companyBasicInfo.address} | 사업자등록번호 : {companyBasicInfo.businessNumber}</div>
+                      <div>TEL : {companyBasicInfo.tel} | HP : {companyBasicInfo.mobile} | E-mail : {companyBasicInfo.email}</div>
+                      <div style={{marginTop: '10px', fontSize: '12px'}}>{companyBasicInfo.companyName} All Rights Reserved.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         </section>
       )}
@@ -1998,13 +2746,6 @@ function App() {
           </div>
         </section>
       )}
-      
-      <footer className="footer">
-        <div className="container">
-          <p>가온 | 대표: 박상현 | TEL: 031-281-3980</p>
-          <p>© 2024 GAON. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }
