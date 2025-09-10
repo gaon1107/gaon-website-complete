@@ -17,6 +17,16 @@ function App() {
     business: { title: "사업분야", items: [] },
     achievements: { title: "주요실적", items: [] }
   });
+  const [contactForm, setContactForm] = React.useState({
+    name: '',
+    contact: '',
+    content: '',
+    file: null,
+    isPublic: false
+  });
+  const [contactSubmitting, setContactSubmitting] = React.useState(false);
+  const [contacts, setContacts] = React.useState([]);
+  const fileInputRef = React.useRef(null);
 
   const showPage = (page) => {
     if (page === 'admin' && !isLoggedIn) {
@@ -67,7 +77,7 @@ function App() {
 
   const fetchNotices = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/notices');
+      const response = await fetch('http://localhost:5003/api/notices');
       const data = await response.json();
       setNotices(data);
     } catch (error) {
@@ -77,7 +87,7 @@ function App() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/products');
+      const response = await fetch('http://localhost:5003/api/products');
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -87,7 +97,7 @@ function App() {
 
   const fetchImages = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/images');
+      const response = await fetch('http://localhost:5003/api/images');
       const data = await response.json();
       setImages(data);
     } catch (error) {
@@ -97,7 +107,7 @@ function App() {
 
   const fetchBannerImage = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/images/banner');
+      const response = await fetch('http://localhost:5003/api/images/banner');
       const data = await response.json();
       setBannerImage(data.bannerImage);
     } catch (error) {
@@ -112,7 +122,7 @@ function App() {
       formData.append('image', file);
       formData.append('type', type);
 
-      const response = await fetch('http://localhost:5001/api/images/upload', {
+      const response = await fetch('http://localhost:5003/api/images/upload', {
         method: 'POST',
         body: formData
       });
@@ -136,7 +146,7 @@ function App() {
   const setBannerImageById = async (imageId) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5001/api/images/banner/${imageId}`, {
+      const response = await fetch(`http://localhost:5003/api/images/banner/${imageId}`, {
         method: 'PUT'
       });
 
@@ -166,7 +176,7 @@ function App() {
         formData.append('image', image);
       }
 
-      const response = await fetch('http://localhost:5001/api/notices', {
+      const response = await fetch('http://localhost:5003/api/notices', {
         method: 'POST',
         body: formData
       });
@@ -193,7 +203,7 @@ function App() {
         formData.append('image', image);
       }
 
-      const response = await fetch('http://localhost:5001/api/products', {
+      const response = await fetch('http://localhost:5003/api/products', {
         method: 'POST',
         body: formData
       });
@@ -211,7 +221,7 @@ function App() {
   // 회사 정보 관련 함수들
   const fetchCompanyInfo = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/company');
+      const response = await fetch('http://localhost:5003/api/company');
       const data = await response.json();
       setCompanyInfo(data);
     } catch (error) {
@@ -222,7 +232,7 @@ function App() {
   const updateCompanySection = async (section, formData) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5001/api/company/${section}`, {
+      const response = await fetch(`http://localhost:5003/api/company/${section}`, {
         method: 'PUT',
         body: formData
       });
@@ -243,6 +253,103 @@ function App() {
     }
   };
 
+  // 문의하기 관련 함수들
+  const fetchContacts = async () => {
+    try {
+      const response = await fetch('http://localhost:5003/api/contacts');
+      const data = await response.json();
+      setContacts(data);
+    } catch (error) {
+      console.error('문의하기 데이터 로딩 실패:', error);
+    }
+  };
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    if (!contactForm.name || !contactForm.contact || !contactForm.content) {
+      alert('이름, 연락처, 내용은 필수 항목입니다.');
+      return;
+    }
+
+    try {
+      setContactSubmitting(true);
+      const formData = new FormData();
+      formData.append('name', contactForm.name);
+      formData.append('contact', contactForm.contact);
+      formData.append('content', contactForm.content);
+      formData.append('isPublic', contactForm.isPublic);
+      if (contactForm.file) {
+        formData.append('file', contactForm.file);
+      }
+
+      const response = await fetch('http://localhost:5003/api/contacts', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        alert('문의가 성공적으로 등록되었습니다.');
+        setContactForm({
+          name: '',
+          contact: '',
+          content: '',
+          file: null,
+          isPublic: false
+        });
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      } else {
+        throw new Error('문의 등록에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('문의 등록 오류:', error);
+      alert('문의 등록 중 오류가 발생했습니다.');
+    } finally {
+      setContactSubmitting(false);
+    }
+  };
+
+  const updateContactStatus = async (contactId, status) => {
+    try {
+      const response = await fetch(`http://localhost:5003/api/contacts/${contactId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status })
+      });
+
+      if (response.ok) {
+        alert('상태가 업데이트되었습니다.');
+        fetchContacts();
+      } else {
+        throw new Error('상태 업데이트에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('상태 업데이트 오류:', error);
+      alert('상태 업데이트 중 오류가 발생했습니다.');
+    }
+  };
+
+  const deleteContact = async (contactId) => {
+    if (window.confirm('정말 삭제하시겠습니까?')) {
+      try {
+        const response = await fetch(`http://localhost:5003/api/contacts/${contactId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          alert('문의가 삭제되었습니다.');
+          fetchContacts();
+        } else {
+          throw new Error('삭제에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('삭제 오류:', error);
+        alert('삭제 중 오류가 발생했습니다.');
+      }
+    }
+  };
+
   React.useEffect(() => {
     if (isLoggedIn && adminSection === 'notices') {
       fetchNotices();
@@ -255,6 +362,9 @@ function App() {
     }
     if (isLoggedIn && (adminSection === 'about' || adminSection === 'history' || adminSection === 'business' || adminSection === 'achievements')) {
       fetchCompanyInfo();
+    }
+    if (isLoggedIn && adminSection === 'contacts') {
+      fetchContacts();
     }
     if (currentPage === 'notices') {
       fetchNotices();
@@ -297,7 +407,7 @@ function App() {
             className="hero"
             style={{
               background: bannerImage 
-                ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(http://localhost:5001${bannerImage.path}) center/cover`
+                ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(http://localhost:5003${bannerImage.path}) center/cover`
                 : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
             }}
           >
@@ -362,7 +472,7 @@ function App() {
                         {notice.image && (
                           <div style={{marginLeft: '15px'}}>
                             <img 
-                              src={`http://localhost:5001${notice.image}`} 
+                              src={`http://localhost:5003${notice.image}`} 
                               alt={notice.title}
                               style={{width: '80px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
                             />
@@ -413,6 +523,136 @@ function App() {
               </div>
             </section>
           )}
+
+          {/* 문의하기 섹션 */}
+          <section style={{padding: '80px 0', background: '#f8f9fa'}}>
+            <div className="container">
+              <h2 style={{textAlign: 'center', marginBottom: '50px', color: '#333', fontSize: '32px'}}>문의하기</h2>
+              <div style={{maxWidth: '600px', margin: '0 auto', background: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}}>
+                <form onSubmit={handleContactSubmit}>
+                  <div style={{marginBottom: '20px'}}>
+                    <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>이름 *</label>
+                    <input
+                      type="text"
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '2px solid #e1e8ed',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        transition: 'border-color 0.3s',
+                        boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                      onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                      required
+                    />
+                  </div>
+                  
+                  <div style={{marginBottom: '20px'}}>
+                    <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>연락처 *</label>
+                    <input
+                      type="text"
+                      value={contactForm.contact}
+                      onChange={(e) => setContactForm({...contactForm, contact: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '2px solid #e1e8ed',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        transition: 'border-color 0.3s',
+                        boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                      onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                      placeholder="전화번호, 이메일 등"
+                      required
+                    />
+                  </div>
+
+                  <div style={{marginBottom: '20px'}}>
+                    <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>문의내용 *</label>
+                    <textarea
+                      value={contactForm.content}
+                      onChange={(e) => setContactForm({...contactForm, content: e.target.value})}
+                      rows="6"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '2px solid #e1e8ed',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        transition: 'border-color 0.3s',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                      onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                      placeholder="문의하실 내용을 자세히 작성해 주세요."
+                      required
+                    />
+                  </div>
+
+                  <div style={{marginBottom: '20px'}}>
+                    <label style={{display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333'}}>파일 첨부</label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={(e) => setContactForm({...contactForm, file: e.target.files[0]})}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '2px solid #e1e8ed',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box'
+                      }}
+                      accept="image/*,.pdf,.doc,.docx,.txt"
+                    />
+                    <small style={{color: '#666', fontSize: '12px'}}>
+                      지원 형식: 이미지(jpg, png, gif), 문서(pdf, doc, docx, txt) / 최대 5MB
+                    </small>
+                  </div>
+
+                  <div style={{marginBottom: '30px'}}>
+                    <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
+                      <input
+                        type="checkbox"
+                        checked={contactForm.isPublic}
+                        onChange={(e) => setContactForm({...contactForm, isPublic: e.target.checked})}
+                        style={{marginRight: '8px'}}
+                      />
+                      <span style={{color: '#333', fontSize: '14px'}}>공개 문의 (다른 사용자도 볼 수 있습니다)</span>
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={contactSubmitting}
+                    style={{
+                      width: '100%',
+                      padding: '15px',
+                      background: contactSubmitting ? '#ccc' : '#667eea',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: contactSubmitting ? 'not-allowed' : 'pointer',
+                      transition: 'background-color 0.3s'
+                    }}
+                    onMouseOver={(e) => !contactSubmitting && (e.target.style.background = '#5a6fd8')}
+                    onMouseOut={(e) => !contactSubmitting && (e.target.style.background = '#667eea')}
+                  >
+                    {contactSubmitting ? '제출 중...' : '문의하기'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </section>
         </>
       )}
 
@@ -509,7 +749,7 @@ function App() {
                                   {product.image && (
                                     <div style={{flexShrink: 0}}>
                                       <img 
-                                        src={`http://localhost:5001${product.image}`} 
+                                        src={`http://localhost:5003${product.image}`} 
                                         alt={product.name}
                                         style={{
                                           width: '200px', 
@@ -731,6 +971,10 @@ function App() {
                   <h3>📊 통계 분석</h3>
                   <p>방문자 통계를 확인합니다</p>
                 </div>
+                <div className="feature" style={{cursor: 'pointer'}} onClick={() => setAdminSection('contacts')}>
+                  <h3>📞 문의하기 관리</h3>
+                  <p>고객 문의를 관리합니다</p>
+                </div>
               </div>
             )}
 
@@ -805,7 +1049,7 @@ function App() {
                         {notice.image && (
                           <div style={{margin: '10px 0'}}>
                             <img 
-                              src={`http://localhost:5001${notice.image}`} 
+                              src={`http://localhost:5003${notice.image}`} 
                               alt={notice.title}
                               style={{maxWidth: '300px', maxHeight: '200px', borderRadius: '4px', border: '1px solid #ddd'}}
                             />
@@ -910,7 +1154,7 @@ function App() {
                           {product.image && (
                             <div style={{marginLeft: '15px'}}>
                               <img 
-                                src={`http://localhost:5001${product.image}`} 
+                                src={`http://localhost:5003${product.image}`} 
                                 alt={product.name}
                                 style={{width: '120px', height: '90px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
                               />
@@ -971,7 +1215,7 @@ function App() {
                     <div style={{border: '2px solid #e74c3c', borderRadius: '8px', padding: '15px', background: '#fff5f5'}}>
                       <h4 style={{color: '#e74c3c', margin: '0 0 10px 0'}}>현재 배너 이미지</h4>
                       <img 
-                        src={`http://localhost:5001${bannerImage.path}`}
+                        src={`http://localhost:5003${bannerImage.path}`}
                         alt="Current Banner"
                         style={{width: '100%', maxWidth: '600px', height: '200px', objectFit: 'cover', borderRadius: '4px'}}
                       />
@@ -1026,7 +1270,7 @@ function App() {
                           backgroundColor: bannerImage && bannerImage.id === image.id ? '#fff5f5' : 'white'
                         }}>
                           <img 
-                            src={`http://localhost:5001${image.path}`}
+                            src={`http://localhost:5003${image.path}`}
                             alt={image.originalname}
                             style={{width: '100%', height: '150px', objectFit: 'cover'}}
                           />
@@ -1206,7 +1450,7 @@ function App() {
                         {companyInfo.about.images.map((image, index) => (
                           <img 
                             key={index}
-                            src={`http://localhost:5001${image}`}
+                            src={`http://localhost:5003${image}`}
                             alt={`회사소개 이미지 ${index + 1}`}
                             style={{width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
                           />
@@ -1230,85 +1474,64 @@ function App() {
                   </button>
                 </div>
                 
-                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', marginBottom: '20px'}}>
-                  <h3>새 연혁 추가</h3>
+                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
                   <form onSubmit={(e) => {
                     e.preventDefault();
                     const formData = new FormData();
-                    formData.append('action', 'add');
-                    formData.append('year', e.target.year.value);
-                    formData.append('description', e.target.description.value);
-                    if (e.target.image.files[0]) {
-                      formData.append('image', e.target.image.files[0]);
+                    formData.append('content', e.target.content.value);
+                    const files = e.target.images.files;
+                    for (let i = 0; i < files.length; i++) {
+                      formData.append('images', files[i]);
                     }
                     updateCompanySection('history', formData);
-                    e.target.reset();
                   }}>
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '15px', marginBottom: '15px'}}>
-                      <div>
-                        <input 
-                          name="year"
-                          type="text"
-                          placeholder="년도"
-                          style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <input 
-                          name="description"
-                          type="text"
-                          placeholder="연혁 내용"
-                          style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
-                          required
-                        />
-                      </div>
+                    <div style={{marginBottom: '15px'}}>
+                      <label style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>회사 연혁 내용</label>
+                      <textarea 
+                        name="content"
+                        defaultValue={companyInfo.history?.content || ''}
+                        rows="10"
+                        style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
+                        placeholder="회사 연혁을 입력하세요... 
+예시:
+2023년 12월 - 가온 설립
+2024년 3월 - AI 얼굴인식 솔루션 개발 시작
+2024년 6월 - 첫 번째 제품 출시"
+                      />
                     </div>
                     <div style={{marginBottom: '15px'}}>
+                      <label style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>이미지 추가 (선택사항)</label>
                       <input 
-                        name="image"
+                        name="images"
                         type="file"
                         accept="image/*"
+                        multiple
                         style={{width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
                       />
                     </div>
-                    <button type="submit" style={{padding: '10px 20px', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>
-                      연혁 추가
+                    <button 
+                      type="submit" 
+                      disabled={loading}
+                      style={{padding: '10px 20px', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                    >
+                      {loading ? '업데이트 중...' : '내용 업데이트'}
                     </button>
                   </form>
-                </div>
-
-                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
-                  <h3>등록된 연혁</h3>
-                  {companyInfo.history?.items && companyInfo.history.items.length > 0 ? (
-                    companyInfo.history.items.map((item, index) => (
-                      <div key={index} style={{borderBottom: '1px solid #eee', padding: '15px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <div style={{flex: 1}}>
-                          <strong style={{color: '#333', fontSize: '18px'}}>{item.year}</strong>
-                          <p style={{margin: '5px 0', color: '#666'}}>{item.description}</p>
-                          {item.image && (
-                            <img 
-                              src={`http://localhost:5001${item.image}`} 
-                              alt={item.description}
-                              style={{width: '100px', height: '70px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd', marginTop: '10px'}}
-                            />
-                          )}
-                        </div>
-                        <button 
-                          onClick={() => {
-                            const formData = new FormData();
-                            formData.append('action', 'delete');
-                            formData.append('index', index.toString());
-                            updateCompanySection('history', formData);
-                          }}
-                          style={{padding: '5px 10px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
-                        >
-                          삭제
-                        </button>
+                  
+                  {companyInfo.history?.images && companyInfo.history.images.length > 0 && (
+                    <div style={{marginTop: '20px'}}>
+                      <h4>현재 이미지</h4>
+                      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '10px', marginTop: '10px'}}>
+                        {companyInfo.history.images.map((image, index) => (
+                          <img 
+                            key={index}
+                            src={`http://localhost:5003${image}`}
+                            alt={`회사연혁 이미지 ${index + 1}`}
+                            style={{width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
+                          />
+                        ))}
                       </div>
-                    ))
-                  ) : (
-                    <p style={{color: '#666', textAlign: 'center', margin: '20px 0'}}>등록된 연혁이 없습니다.</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1380,7 +1603,7 @@ function App() {
                         <div key={index} style={{border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden'}}>
                           {item.image && (
                             <img 
-                              src={`http://localhost:5001${item.image}`} 
+                              src={`http://localhost:5003${item.image}`} 
                               alt={item.name}
                               style={{width: '100%', height: '150px', objectFit: 'cover'}}
                             />
@@ -1491,7 +1714,7 @@ function App() {
                       <div key={index} style={{borderBottom: '1px solid #eee', padding: '20px 0', display: 'flex', alignItems: 'flex-start', gap: '20px'}}>
                         {item.image && (
                           <img 
-                            src={`http://localhost:5001${item.image}`} 
+                            src={`http://localhost:5003${item.image}`} 
                             alt={item.project}
                             style={{width: '120px', height: '90px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd', flexShrink: 0}}
                           />
@@ -1526,6 +1749,115 @@ function App() {
               </div>
             )}
 
+            {adminSection === 'contacts' && (
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                  <h2>문의하기 관리</h2>
+                  <button 
+                    onClick={() => setAdminSection('dashboard')}
+                    style={{padding: '8px 16px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                  >
+                    대시보드로 돌아가기
+                  </button>
+                </div>
+                
+                <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+                  {contacts.length > 0 ? (
+                    <div>
+                      {contacts.map(contact => (
+                        <div key={contact.id} style={{
+                          border: '1px solid #e0e0e0', 
+                          borderRadius: '8px', 
+                          padding: '20px', 
+                          marginBottom: '20px',
+                          background: contact.status === 'completed' ? '#f8f9fa' : 'white'
+                        }}>
+                          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px'}}>
+                            <div>
+                              <h3 style={{margin: '0 0 5px 0', color: '#333'}}>{contact.name}</h3>
+                              <p style={{margin: '0', color: '#666', fontSize: '14px'}}>
+                                연락처: {contact.contact} | 등록일: {new Date(contact.createdAt).toLocaleDateString('ko-KR')}
+                              </p>
+                              <div style={{marginTop: '5px'}}>
+                                <span style={{
+                                  background: contact.isPublic ? '#28a745' : '#6c757d',
+                                  color: 'white',
+                                  padding: '2px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '12px',
+                                  marginRight: '8px'
+                                }}>
+                                  {contact.isPublic ? '공개' : '비공개'}
+                                </span>
+                                <span style={{
+                                  background: contact.status === 'pending' ? '#ffc107' : 
+                                           contact.status === 'processing' ? '#17a2b8' : '#28a745',
+                                  color: 'white',
+                                  padding: '2px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '12px'
+                                }}>
+                                  {contact.status === 'pending' ? '대기중' : 
+                                   contact.status === 'processing' ? '처리중' : '완료'}
+                                </span>
+                              </div>
+                            </div>
+                            <div style={{display: 'flex', gap: '8px'}}>
+                              <select
+                                value={contact.status}
+                                onChange={(e) => updateContactStatus(contact.id, e.target.value)}
+                                style={{padding: '4px 8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '12px'}}
+                              >
+                                <option value="pending">대기중</option>
+                                <option value="processing">처리중</option>
+                                <option value="completed">완료</option>
+                              </select>
+                              <button
+                                onClick={() => deleteContact(contact.id)}
+                                style={{
+                                  padding: '4px 8px',
+                                  background: '#dc3545',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px'
+                                }}
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div style={{marginBottom: '15px'}}>
+                            <p style={{margin: '0', color: '#333', lineHeight: '1.5'}}>{contact.content}</p>
+                          </div>
+                          
+                          {contact.file && (
+                            <div style={{marginTop: '10px'}}>
+                              <strong style={{color: '#333', fontSize: '14px'}}>첨부파일: </strong>
+                              <a 
+                                href={`http://localhost:5003${contact.file}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{color: '#667eea', textDecoration: 'none'}}
+                              >
+                                {contact.fileName || '파일 다운로드'}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{textAlign: 'center', color: '#666', margin: '40px 0'}}>
+                      {loading ? '문의사항을 불러오는 중...' : '등록된 문의사항이 없습니다.'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
           </div>
         </section>
       )}
@@ -1552,7 +1884,7 @@ function App() {
                     {companyInfo.about.images.map((image, index) => (
                       <img 
                         key={index}
-                        src={`http://localhost:5001${image}`}
+                        src={`http://localhost:5003${image}`}
                         alt={`회사소개 이미지 ${index + 1}`}
                         style={{width: '100%', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}
                       />
@@ -1570,35 +1902,30 @@ function App() {
           <div className="container">
             <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>회사연혁</h1>
             <div style={{maxWidth: '800px', margin: '0 auto'}}>
-              {companyInfo.history?.items && companyInfo.history.items.length > 0 ? (
-                <div style={{position: 'relative', paddingLeft: '30px'}}>
-                  <div style={{position: 'absolute', left: '15px', top: '0', bottom: '0', width: '2px', background: '#667eea'}}></div>
-                  {companyInfo.history.items.map((item, index) => (
-                    <div key={index} style={{position: 'relative', marginBottom: '40px'}}>
-                      <div style={{position: 'absolute', left: '-23px', top: '10px', width: '16px', height: '16px', borderRadius: '50%', background: '#667eea', border: '3px solid white', boxShadow: '0 0 0 3px #667eea'}}></div>
-                      <div style={{background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', marginLeft: '20px'}}>
-                        <div style={{display: 'flex', alignItems: 'flex-start', gap: '20px'}}>
-                          <div style={{flex: 1}}>
-                            <h3 style={{color: '#667eea', margin: '0 0 10px 0', fontSize: '20px'}}>{item.year}</h3>
-                            <p style={{color: '#555', margin: '0', fontSize: '16px', lineHeight: '1.6'}}>{item.description}</p>
-                          </div>
-                          {item.image && (
-                            <img 
-                              src={`http://localhost:5001${item.image}`} 
-                              alt={item.description}
-                              style={{width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e0e0e0'}}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              <div style={{background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+                <div style={{fontSize: '16px', lineHeight: '1.8', color: '#555', marginBottom: '30px'}}>
+                  {companyInfo.history?.content ? (
+                    companyInfo.history.content.split('\n').map((line, index) => (
+                      <p key={index} style={{margin: '0 0 15px 0'}}>{line}</p>
+                    ))
+                  ) : (
+                    <p>회사 연혁이 등록되지 않았습니다.</p>
+                  )}
                 </div>
-              ) : (
-                <div style={{background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', textAlign: 'center'}}>
-                  <p style={{color: '#666', fontSize: '16px'}}>등록된 연혁이 없습니다.</p>
-                </div>
-              )}
+                
+                {companyInfo.history?.images && companyInfo.history.images.length > 0 && (
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px'}}>
+                    {companyInfo.history.images.map((image, index) => (
+                      <img 
+                        key={index}
+                        src={`http://localhost:5003${image}`}
+                        alt={`회사연혁 이미지 ${index + 1}`}
+                        style={{width: '100%', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -1614,7 +1941,7 @@ function App() {
                   <div key={index} style={{background: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', transition: 'transform 0.3s ease'}}>
                     {item.image && (
                       <img 
-                        src={`http://localhost:5001${item.image}`} 
+                        src={`http://localhost:5003${item.image}`} 
                         alt={item.name}
                         style={{width: '100%', height: '200px', objectFit: 'cover'}}
                       />
@@ -1646,7 +1973,7 @@ function App() {
                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '30px'}}>
                       {item.image && (
                         <img 
-                          src={`http://localhost:5001${item.image}`} 
+                          src={`http://localhost:5003${item.image}`} 
                           alt={item.project}
                           style={{width: '200px', height: '150px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e0e0e0', flexShrink: 0}}
                         />

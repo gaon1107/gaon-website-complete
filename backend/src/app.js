@@ -48,10 +48,12 @@ try {
   const productRoutes = require('./routes/products');
   const imageRoutes = require('./routes/images');
   const companyRoutes = require('./routes/company');
+  const contactRoutes = require('./routes/contacts');
   app.use('/api/notices', noticeRoutes);
   app.use('/api/products', productRoutes);
   app.use('/api/images', imageRoutes);
   app.use('/api/company', companyRoutes);
+  app.use('/api/contacts', contactRoutes);
 } catch(e) {
   console.log('라우트 파일 로딩 중 오류 (정상)');
 }
@@ -64,7 +66,7 @@ app.get('/api', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5003;
 app.listen(PORT, () => {
   console.log(`🚀 서버가 포트 ${PORT}에서 실행 중입니다.`);
   console.log(`📡 API: http://localhost:${PORT}/api`);

@@ -31,13 +31,8 @@ if (!fs.existsSync(dataPath)) {
     },
     history: {
       title: "회사연혁",
-      items: [
-        {
-          year: "2023",
-          description: "GAON 설립",
-          image: null
-        }
-      ]
+      content: "2023년 12월 - GAON 설립\n2024년 3월 - AI 얼굴인식 솔루션 개발 시작\n2024년 6월 - 첫 번째 제품 출시",
+      images: []
     },
     business: {
       title: "사업분야",
@@ -113,30 +108,14 @@ router.put('/about', upload.array('images', 5), (req, res) => {
 });
 
 // 회사연혁 업데이트
-router.put('/history', upload.single('image'), (req, res) => {
+router.put('/history', upload.array('images', 5), (req, res) => {
   try {
     const data = readData();
-    const { action, year, description, index } = req.body;
+    data.history.content = req.body.content || data.history.content;
     
-    if (action === 'add') {
-      const newItem = {
-        year,
-        description,
-        image: req.file ? `/uploads/${req.file.filename}` : null
-      };
-      data.history.items.push(newItem);
-    } else if (action === 'edit' && index !== undefined) {
-      const idx = parseInt(index);
-      if (data.history.items[idx]) {
-        data.history.items[idx].year = year || data.history.items[idx].year;
-        data.history.items[idx].description = description || data.history.items[idx].description;
-        if (req.file) {
-          data.history.items[idx].image = `/uploads/${req.file.filename}`;
-        }
-      }
-    } else if (action === 'delete' && index !== undefined) {
-      const idx = parseInt(index);
-      data.history.items.splice(idx, 1);
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => `/uploads/${file.filename}`);
+      data.history.images = [...(data.history.images || []), ...newImages];
     }
     
     writeData(data);

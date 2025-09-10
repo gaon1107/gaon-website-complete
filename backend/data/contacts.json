@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1757488953224,
+    "name": "박성헌",
+    "contact": "01062153980",
+    "content": "안녕하세요",
+    "isPublic": false,
+    "file": "/uploads/contacts/1757488953217-600007464.png",
+    "fileName": "20250909_224712.png",
+    "createdAt": "2025-09-10T07:22:33.224Z",
+    "status": "pending"
+  },
+  {
+    "id": 1757489015147,
+    "name": "아무개",
+    "contact": "01000000000",
+    "content": "하이",
+    "isPublic": true,
+    "file": null,
+    "fileName": null,
+    "createdAt": "2025-09-10T07:23:35.147Z",
+    "status": "pending"
+  }
+]
