@@ -1,4 +1,212 @@
-:root {
+/* 제품 카드 효과 강화 */
+.products-home-section {
+  padding: 60px 0;
+  background: linear-gradient(135deg, #fefefe 0%, #f9fafb 50%, #f3f4f6 100%);
+  border-top: 1px solid rgba(0, 102, 255, 0.05);
+  border-bottom: 1px solid rgba(0, 102, 255, 0.05);
+  position: relative;
+}
+
+.products-home-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(0, 102, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  animation: slowFloat 15s ease-in-out infinite;
+}
+
+@keyframes slowFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.01); }
+}
+
+/* 공지사항 & 문의하기 섹션 배경 개선 */
+/* 🔥 가로 배치 강제 적용 - 최고 우선순위 */
+body .App .notice-contact-section .container > div {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 30px !important;
+  align-items: stretch !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  flex-wrap: nowrap !important;
+  max-width: 1000px !important;
+  margin: 0 auto !important;
+}
+
+body .App .notice-contact-section .notice-card,
+body .App .notice-contact-section .contact-card {
+  flex: 1 1 50% !important;
+  max-width: 50% !important;
+  width: 50% !important;
+  min-height: 450px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: white !important;
+  padding: 25px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+  margin: 0 !important;
+}
+
+body .App .notice-contact-section .notice-card h2,
+body .App .notice-contact-section .contact-card h2 {
+  font-size: 18px !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+}
+
+/* 공지사항 & 문의하기 섹션 - 강제 가로 배치 */
+.notice-contact-section {
+  padding: 50px 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #e2e8f0 70%, #cbd5e1 100%);
+  border-top: 1px solid rgba(0, 102, 255, 0.08);
+  position: relative;
+  margin-top: 40px;
+}
+
+/* 가로 배치 강제 적용 - 더 넓은 컨테이너 */
+.notice-contact-section .container {
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 0 30px !important;
+}
+
+.notice-contact-section .container > div {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 40px !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  width: 100% !important;
+  flex-wrap: nowrap !important;
+}
+
+/* 카드들이 더 넓게 가로 배치 - 강제 적용 */
+.notice-contact-section .notice-card,
+.notice-contact-section .contact-card {
+  flex: 1 1 45% !important;
+  max-width: 45% !important;
+  min-width: 400px !important;
+  min-height: 450px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: white !important;
+  padding: 30px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+  margin: 0 !important;
+}
+
+.notice-contact-section .notice-card h2,
+.notice-contact-section .contact-card h2 {
+  font-size: 18px !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+}
+
+/* 다이내믹 배경 효과 */
+.notice-contact-section::before {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  top: 20%;
+  left: 10%;
+  animation: floatAround 20s ease-in-out infinite;
+}
+
+.notice-contact-section::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  top: 60%;
+  right: 15%;
+  animation: floatAround 25s ease-in-out infinite reverse;
+}
+
+@keyframes floatAround {
+  0%, 100% { 
+    transform: translateY(0) translateX(0) rotate(0deg);
+  }
+  25% { 
+    transform: translateY(-30px) translateX(20px) rotate(90deg);
+  }
+  50% { 
+    transform: translateY(-20px) translateX(-10px) rotate(180deg);
+  }
+  75% { 
+    transform: translateY(10px) translateX(15px) rotate(270deg);
+  }
+}
+
+/* 카드 호버 효과 강화 + 스크롤바 완전 제거 */
+.notice-card, .contact-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%) !important;
+  box-shadow: 0 12px 40px rgba(0, 102, 255, 0.08), 0 4px 12px rgba(0,0,0,0.04) !important;
+  border: 1px solid rgba(0, 102, 255, 0.06) !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  position: relative !important;
+  overflow: hidden !important; /* 스크롤바 방지 */
+  max-height: fit-content !important; /* 높이 자동 조절 */
+}
+
+/* 카드 내부 모든 요소의 스크롤바 제거 */
+.notice-card *, .contact-card *, 
+.notice-card div, .contact-card div,
+.notice-card form, .contact-card form {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+}
+
+.notice-card *::-webkit-scrollbar, .contact-card *::-webkit-scrollbar,
+.notice-card div::-webkit-scrollbar, .contact-card div::-webkit-scrollbar,
+.notice-card form::-webkit-scrollbar, .contact-card form::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.notice-card:hover, .contact-card:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+  box-shadow: 0 20px 60px rgba(0, 102, 255, 0.12), 0 0 0 1px rgba(0, 102, 255, 0.1) !important;
+}
+
+/* 카드 내부 글로우 효과 */
+.notice-card::before, .contact-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 102, 255, 0.03), transparent);
+  transition: left 0.6s ease;
+  z-index: 1;
+}
+
+.notice-card:hover::before, .contact-card:hover::before {
+  left: 100%;
+}
+
+/* 회사정보 Footer 배경 개선 */
+.company-footer {
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%) !important;
+  border-top: 2px solid rgba(0, 102, 255, 0.15);
+}:root {
   /* Tech Company Color Palette */
   --primary-blue: #0066ff;
   --secondary-blue: #003d99;
@@ -26,31 +234,79 @@
 
 html {
   scroll-behavior: smooth;
-}
-
-/* Enhanced scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--light-gray);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary-blue);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-blue);
+  overflow-x: hidden; /* 가로 스크롤 완전 차단 */
 }
 
 body {
   font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-dark);
   line-height: 1.6;
-  background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 50%, #e2e8f0 100%);
+  min-height: 100vh;
+  overflow-x: hidden; /* body에서도 가로 스크롤 차단 */
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* 🎨 감각적인 스크롤바 디자인 - 미니멀 다크 스타일 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #95a5a6 100%);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #1a252f 0%, #2c3e50 50%, #7f8c8d 100%);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 0 8px rgba(0,0,0,0.3);
+  transform: scale(1.1);
+}
+
+/* Firefox용 감각적인 스크롤바 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #34495e rgba(0, 0, 0, 0.05);
+}
+
+/* 회사소개 카드 내부 스크롤바 완전 숨김 */
+.notice-card, .contact-card, .notice-card *, .contact-card * {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE */
+}
+
+.notice-card::-webkit-scrollbar, 
+.contact-card::-webkit-scrollbar,
+.notice-card *::-webkit-scrollbar,
+.contact-card *::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari */
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* 모든 카드 내부 요소의 스크롤바 숨김 */
+[style*="overflow"] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+[style*="overflow"]::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* 모든 컨테이너 요소의 가로 넘침 방지 */
+.container, .header, .hero, .features, .footer, 
+.products-home-section, .notice-contact-section {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .container {
@@ -60,13 +316,19 @@ body {
 }
 
 .header {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 0 4px 20px var(--shadow-light);
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+  box-shadow: 0 8px 32px rgba(0, 102, 255, 0.1), 0 2px 8px rgba(0,0,0,0.05);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(10px);
-  border-bottom: 2px solid rgba(0, 102, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 102, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.header:hover {
+  background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+  box-shadow: 0 12px 40px rgba(0, 102, 255, 0.15), 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .header .container {
@@ -84,39 +346,156 @@ body {
 
 .header nav {
   display: flex;
-  gap: 1.2rem;
+  gap: 0.8rem;
+  align-items: center;
+  margin-left: auto; /* 메뉴를 완전히 오른쪽으로 이동 */
+  padding-right: 20px; /* 오른쪽 끝에서 약간의 여백 */
 }
 
 .header nav a {
   color: var(--text-dark);
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.3s ease;
-  padding: 8px 16px;
-  border-radius: 8px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 12px 18px;
+  border-radius: 25px;
   position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+}
+
+/* 메뉴 아이템 호버 글로우 효과 */
+.header nav a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.6s ease;
+}
+
+.header nav a:hover::before {
+  left: 100%;
 }
 
 .header nav a:hover {
   color: var(--primary-blue);
-  background: var(--shadow-light);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+  border-color: var(--primary-blue);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.2), 0 0 0 1px rgba(0, 102, 255, 0.1);
+}
+
+/* 각 메뉴 아이템별 고유 색상 */
+.header nav a:nth-child(1):hover {
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+  border-color: #ff9800;
+  color: #e65100;
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.2);
+}
+
+.header nav a:nth-child(2):hover {
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  border-color: #9c27b0;
+  color: #4a148c;
+  box-shadow: 0 8px 25px rgba(156, 39, 176, 0.2);
+}
+
+.header nav a:nth-child(3):hover {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  border-color: #4caf50;
+  color: #1b5e20;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2);
+}
+
+.header nav a:nth-child(4):hover {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+  border-color: #ff9800;
+  color: #e65100;
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.2);
+}
+
+.header nav a:nth-child(5):hover {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-color: #2196f3;
+  color: #0d47a1;
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.2);
+}
+
+.header nav a:nth-child(6):hover {
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+  border-color: #e91e63;
+  color: #880e4f;
+  box-shadow: 0 8px 25px rgba(233, 30, 99, 0.2);
+}
+
+.header nav a:nth-child(7) {
+  margin-right: 30px; /* 공지사항과 관리자 버튼 사이 간격 확대 */
+}
+
+.header nav a:nth-child(7):hover {
+  background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+  border-color: #8bc34a;
+  color: #33691e;
+  box-shadow: 0 8px 25px rgba(139, 195, 74, 0.2);
+}
+
+/* 활성 상태 표시 */
+.header nav a.active {
+  background: var(--gradient-primary);
+  color: white;
+  border-color: var(--primary-blue);
+  box-shadow: 0 4px 15px var(--shadow-medium);
 }
 
 .admin-link {
-  background: var(--gradient-primary) !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: var(--white) !important;
-  padding: 10px 20px;
-  border-radius: 25px;
-  box-shadow: 0 4px 15px var(--shadow-medium);
-  border: none;
-  font-weight: 600;
+  padding: 12px 24px !important;
+  border-radius: 30px !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3) !important;
+  border: 2px solid transparent !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-link::before {
+  content: '👑';
+  margin-right: 6px;
+  animation: float 2s ease-in-out infinite;
+}
+
+.admin-link::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.admin-link:hover::after {
+  left: 100%;
 }
 
 .admin-link:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px var(--shadow-medium) !important;
-  background: var(--gradient-primary) !important;
+  transform: translateY(-4px) scale(1.08) !important;
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4) !important;
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+  border-color: rgba(255,255,255,0.3) !important;
 }
 
 .hero {
@@ -191,8 +570,28 @@ body {
 
 .features {
   padding: 80px 20px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e6f3ff 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #f1f5f9 70%, #e6f3ff 100%);
   position: relative;
+  border-top: 1px solid rgba(0, 102, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 102, 255, 0.08);
+}
+
+/* 인터랙티브 배경 요소 추가 */
+.features::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.03) 0%, transparent 70%);
+  animation: rotateBackground 30s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotateBackground {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .feature-grid {
@@ -203,48 +602,23 @@ body {
 }
 
 .feature {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fdfdfd 100%);
   padding: 40px 30px;
   border-radius: 16px;
   text-align: center;
-  box-shadow: 0 8px 30px var(--shadow-light);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 2px solid rgba(0, 102, 255, 0.1);
+  box-shadow: 0 8px 30px rgba(0, 102, 255, 0.08), 0 2px 8px rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 102, 255, 0.06);
   position: relative;
   overflow: hidden;
   animation: fadeInUp 0.8s ease-out;
+  cursor: pointer;
 }
 
-.feature::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: var(--gradient-primary);
-  border-radius: 16px 16px 0 0;
-}
-
-.feature:nth-child(1)::before {
-  background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
-}
-
-.feature:nth-child(2)::before {
-  background: linear-gradient(135deg, #48bb78 0%, #38b2ac 100%);
-}
-
-.feature:nth-child(3)::before {
-  background: linear-gradient(135deg, #ed8936 0%, #f56565 100%);
-}
-
-.feature:nth-child(4)::before {
-  background: linear-gradient(135deg, #9f7aea 0%, #667eea 100%);
-}
-
+/* 간단한 호버 효과 - 더 강하게 */
 .feature:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 60px var(--shadow-medium);
+  transform: translateY(-20px);
+  box-shadow: 0 20px 50px rgba(0, 102, 255, 0.2);
   border-color: var(--primary-blue);
 }
 
@@ -398,7 +772,7 @@ body {
   display: none;
 }
 
-/* Banner Slide Animations */
+/* Banner Slide Animations - 천천히 부드럽게 */
 @keyframes slideInFromRight {
   from {
     transform: translateX(100%);
@@ -421,7 +795,26 @@ body {
   }
 }
 
-/* Hero Banner Slideshow Styles */
+/* 페이드 애니메이션 추가 */
+@keyframes fadeInSlowly {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutSlowly {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Hero Banner Slideshow Styles - 부드러운 애니메이션 */
 .hero-slideshow {
   position: relative;
   overflow: hidden;
@@ -437,23 +830,23 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0;
-  transform: translateX(100%);
-  animation-duration: 0.8s;
+  transform: translateX(0);
+  animation-duration: 1.5s; /* 더 천천히 */
   animation-fill-mode: forwards;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 더 부드러운 easing */
+  transition: all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .hero-slide.active {
-  animation-name: slideInFromRight;
+  animation-name: fadeInSlowly;
+  opacity: 1;
+  z-index: 2;
 }
 
 .hero-slide.exit {
-  animation-name: slideOutToLeft;
+  animation-name: fadeOutSlowly;
+  opacity: 0;
   z-index: 1;
-}
-
-.hero-slide.active {
-  z-index: 2;
 }
 
 /* Global Animations */
@@ -507,8 +900,45 @@ body {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-6px);
   }
+}
+
+/* 메뉴 아이템 스태거 애니메이션 */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header nav a:nth-child(1) { animation: slideInFromTop 0.6s ease 0.1s both; }
+.header nav a:nth-child(2) { animation: slideInFromTop 0.6s ease 0.2s both; }
+.header nav a:nth-child(3) { animation: slideInFromTop 0.6s ease 0.3s both; }
+.header nav a:nth-child(4) { animation: slideInFromTop 0.6s ease 0.4s both; }
+.header nav a:nth-child(5) { animation: slideInFromTop 0.6s ease 0.5s both; }
+.header nav a:nth-child(6) { animation: slideInFromTop 0.6s ease 0.6s both; }
+.header nav a:nth-child(7) { animation: slideInFromTop 0.6s ease 0.7s both; }
+.admin-link { animation: slideInFromTop 0.6s ease 0.8s both; }
+
+/* 메뉴 리플 효과 */
+@keyframes menuRipple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.header nav a:active::after {
+  animation: menuRipple 0.6s ease-out;
 }
 
 @keyframes glow {
@@ -545,21 +975,45 @@ body {
   animation: glow 2s ease-in-out infinite alternate;
 }
 
-/* Stagger animations for multiple elements */
-.feature:nth-child(1) {
-  animation-delay: 0.1s;
+/* 학생할한 컴퍼넌트 애니메이션 */
+.feature:nth-child(1) { 
+  animation: fadeInUp 0.8s ease-out 0.1s both;
+}
+.feature:nth-child(2) { 
+  animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+.feature:nth-child(3) { 
+  animation: fadeInUp 0.8s ease-out 0.5s both;
+}
+.feature:nth-child(4) { 
+  animation: fadeInUp 0.8s ease-out 0.7s both;
 }
 
-.feature:nth-child(2) {
-  animation-delay: 0.2s;
+/* 컴퍼넌트별 아이콘 효과 */
+.feature h3::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 30px;
+  margin-right: 10px;
+  border-radius: 2px;
+  vertical-align: middle;
 }
 
-.feature:nth-child(3) {
-  animation-delay: 0.3s;
+.feature:nth-child(1) h3::before {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
 }
 
-.feature:nth-child(4) {
-  animation-delay: 0.4s;
+.feature:nth-child(2) h3::before {
+  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+}
+
+.feature:nth-child(3) h3::before {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.feature:nth-child(4) h3::before {
+  background: linear-gradient(135deg, #ff5722 0%, #d84315 100%);
 }
 
 /* Smooth page transitions */
@@ -567,29 +1021,6 @@ body {
   animation: fadeInUp 0.6s ease-out;
 }
 
-/* Loading states */
-.loading {
-  position: relative;
-  overflow: hidden;
-}
-
-.loading::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  100% {
-    transform: translateX(100%);
-  }
-}
 
 /* Hover effects for interactive elements */
 .interactive {
@@ -700,25 +1131,171 @@ body {
   font-size: 24px;
 }
 
+/* 모바일 반응형 및 가로 스크롤 완전 제거 */
 @media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    width: 100% !important;
+  }
+
+  .container {
+    padding: 0 15px !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .header {
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .header .container {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px !important;
+  }
+
   .header nav {
-    gap: 1rem;
-    font-size: 14px;
+    gap: 0.3rem;
+    font-size: 11px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    overflow-x: hidden;
   }
   
+  .header nav a {
+    padding: 6px 10px;
+    font-size: 10px;
+    border-radius: 15px;
+    white-space: nowrap;
+  }
+  
+  .admin-link {
+    padding: 6px 12px !important;
+    font-size: 10px !important;
+    border-radius: 20px !important;
+  }
+  
+  .hero {
+    padding: 60px 15px !important;
+    overflow-x: hidden !important;
+  }
+
   .hero-content h1 {
-    font-size: 2rem;
+    font-size: 1.8rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .hero-content p {
+    font-size: 1rem !important;
+    padding: 0 10px !important;
   }
   
+  .features {
+    padding: 40px 15px !important;
+    overflow-x: hidden !important;
+  }
+
   .feature-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .feature {
+    padding: 25px 20px !important;
+    margin: 0 5px !important;
+  }
+
+  .products-home-section, .notice-contact-section {
+    padding: 40px 15px !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 공지사항 & 문의하기 섹션 모바일 반응형 - 가로 배치 유지 */
+  body .App .notice-contact-section .container > div {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 15px !important;
+    max-width: 100% !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+  }
+
+  body .App .notice-contact-section .notice-card,
+  body .App .notice-contact-section .contact-card {
+    max-width: 45% !important;
+    flex: 1 1 45% !important;
+    width: 100% !important;
+    flex: none !important;
+    padding: 20px !important;
+    margin: 0 10px !important;
+    min-height: auto !important;
+    border-radius: 10px !important;
+  }
+
+  body .App .notice-contact-section .notice-card h2,
+  body .App .notice-contact-section .contact-card h2 {
+    font-size: 16px !important;
+    margin-bottom: 15px !important;
   }
 
   .category-title {
-    font-size: 20px;
+    font-size: 18px !important;
   }
 
   .product-detail-content {
     padding: 15px !important;
   }
+
+  /* 모든 섹션과 콘텐츠 영역 */
+  * {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 텍스트가 화면을 넘치지 않도록 */
+  h1, h2, h3, h4, h5, h6, p, div, span {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+  }
+
+  /* 이미지가 넘치지 않도록 */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* 버튼과 폼 요소 */
+  .btn-primary, .btn-secondary, .cta-button {
+    font-size: 0.9rem !important;
+    padding: 10px 20px !important;
+  }
+
+  .form-input, .form-textarea, .form-select {
+    font-size: 14px !important;
+  }
+}
+
+/* 최종 강제 가로 배치 - 모든 우선순위 오버라이드 */
+.notice-contact-section .container > div {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 40px !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  width: 100% !important;
+  flex-wrap: nowrap !important;
+}
+
+.notice-contact-section .notice-card,
+.notice-contact-section .contact-card {
+  flex: 1 1 45% !important;
+  max-width: 45% !important;
+  min-width: 400px !important;
+  width: 45% !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
