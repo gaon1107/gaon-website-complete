@@ -674,8 +674,8 @@ function App() {
             )}
             
             <div className="hero-content" style={{position: 'relative', zIndex: 10}}>
-              <h1>내일의 기술을 만듭니다</h1>
-              <p>공인받는 기술력과 아이디어로<br/>차별화된 서비스와 최상의 결과를 만들어드립니다.</p>
+              <h1 style={{color: 'white'}}>내일의 기술을 만듭니다</h1>
+              <p style={{color: 'white'}}>공인받는 기술력과 아이디어로<br/>차별화된 서비스와 최상의 결과를 만들어드립니다.</p>
             </div>
             
             {/* 인디케이터를 섹션 바깥으로 이동 */}

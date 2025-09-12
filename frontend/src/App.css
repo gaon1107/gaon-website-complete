@@ -151,24 +151,24 @@ body .App .notice-contact-section .contact-card h2 {
   }
 }
 
-/* 카드 호버 효과 강화 + 스크롤바 완전 제거 */
+/* 카드 호버 효과 강화 - 스크롤 제거 */
 .notice-card, .contact-card {
   background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%) !important;
   box-shadow: 0 12px 40px rgba(0, 102, 255, 0.08), 0 4px 12px rgba(0,0,0,0.04) !important;
   border: 1px solid rgba(0, 102, 255, 0.06) !important;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
   position: relative !important;
-  overflow: hidden !important; /* 스크롤바 방지 */
-  max-height: fit-content !important; /* 높이 자동 조절 */
+  overflow: visible !important; /* 스크롤 제거 - visible로 변경 */
+  height: auto !important; /* 높이 자동 조절 */
 }
 
-/* 카드 내부 모든 요소의 스크롤바 제거 */
+/* 카드 내부 모든 요소의 스크롤바 완전 제거 */
 .notice-card *, .contact-card *, 
 .notice-card div, .contact-card div,
 .notice-card form, .contact-card form {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
-  overflow-x: hidden !important;
+  overflow: visible !important; /* 모든 overflow를 visible로 */
   max-width: 100% !important;
 }
 
@@ -303,10 +303,15 @@ body {
 }
 
 /* 모든 컨테이너 요소의 가로 넘침 방지 */
-.container, .header, .hero, .features, .footer, 
+.container, .header, .hero, .footer, 
 .products-home-section, .notice-contact-section {
   max-width: 100%;
   overflow-x: hidden;
+}
+
+.features {
+  max-width: 100%;
+  overflow: visible; /* features 섹션 스크롤 제거 */
 }
 
 .container {
@@ -610,7 +615,7 @@ body {
   transition: all 0.3s ease;
   border: 1px solid rgba(0, 102, 255, 0.06);
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* 카드 스크롤 제거 */
   animation: fadeInUp 0.8s ease-out;
   cursor: pointer;
 }
@@ -1195,7 +1200,7 @@ body {
   
   .features {
     padding: 40px 15px !important;
-    overflow-x: hidden !important;
+    overflow: visible !important; /* 모바일에서도 스크롤 제거 */
   }
 
   .feature-grid {
