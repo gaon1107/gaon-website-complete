@@ -2892,12 +2892,19 @@ function App() {
 
       {/* 회사 정보 페이지들 */}
       {currentPage === 'about' && (
-        <section style={{padding: '60px 0', background: '#f8f9fa', minHeight: '80vh'}}>
+        <section style={{padding: '60px 0', background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%)', minHeight: '80vh'}}>
           <div className="container">
-            <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>회사소개</h1>
+            <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#ffffff'}}>회사소개</h1>
             <div style={{maxWidth: '800px', margin: '0 auto'}}>
-              <div style={{background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
-                <div style={{fontSize: '16px', lineHeight: '1.8', color: '#555', marginBottom: '30px'}}>
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)', 
+                padding: '40px', 
+                borderRadius: '15px', 
+                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.15)',
+                border: '1px solid rgba(102, 126, 234, 0.2)',
+                backdropFilter: 'blur(10px)'
+              }}>
+                <div style={{fontSize: '16px', lineHeight: '1.8', color: '#e0e0e0', marginBottom: '30px'}}>
                   {companyInfo.about?.content ? (
                     companyInfo.about.content.split('\n').map((line, index) => (
                       <p key={index} style={{margin: '0 0 15px 0'}}>{line}</p>
@@ -2907,18 +2914,89 @@ function App() {
                   )}
                 </div>
                 
-                {companyInfo.about?.images && companyInfo.about.images.length > 0 && (
-                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px'}}>
-                    {companyInfo.about.images.map((image, index) => (
-                      <img 
-                        key={index}
-                        src={`http://localhost:5003${image}`}
-                        alt={`회사소개 이미지 ${index + 1}`}
-                        style={{width: '100%', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}
-                      />
-                    ))}
+                {/* 회사소개 관련 이미지 - 디자인 감각 적용 */}
+                <div style={{
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                  gap: '20px',
+                  marginTop: '30px'
+                }}>
+                  {/* 기존 이미지들 */}
+                  {companyInfo.about?.images && companyInfo.about.images.length > 0 && 
+                    companyInfo.about.images.map((image, index) => (
+                      <div key={`uploaded-${index}`} style={{
+                        borderRadius: '15px',
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
+                        border: '1px solid rgba(102, 126, 234, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        <img 
+                          src={`http://localhost:5003${image}`}
+                          alt={`회사소개 이미지 ${index + 1}`}
+                          style={{width: '100%', height: '200px', objectFit: 'cover'}}
+                        />
+                      </div>
+                    ))
+                  }
+                  
+                  {/* 디자인된 회사소개 이미지들 */}
+                  <div style={{
+                    borderRadius: '15px',
+                    overflow: 'hidden',
+                    boxShadow: '0 8px 25px rgba(102, 126, 234, 0.4)',
+                    border: '1px solid rgba(102, 126, 234, 0.3)',
+                    transition: 'all 0.3s ease',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '200px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <h3 style={{color: 'white', textAlign: 'center', margin: '0 0 15px 0', fontSize: '18px'}}>혁신적인 AI 기술</h3>
+                    <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '0 0 20px 0', fontSize: '14px'}}>얼굴인식 솔루션 전문기업</p>
+                    <img 
+                      src={require('./assets/company-intro.png')} 
+                      alt="회사 건물" 
+                      style={{
+                        width: '80px', 
+                        height: '80px', 
+                        objectFit: 'contain',
+                        filter: 'brightness(0) invert(1)',
+                        opacity: 0.9
+                      }} 
+                    />
                   </div>
-                )}
+                  
+                  <div style={{
+                    borderRadius: '15px',
+                    overflow: 'hidden',
+                    boxShadow: '0 8px 25px rgba(118, 75, 162, 0.4)',
+                    border: '1px solid rgba(118, 75, 162, 0.3)',
+                    transition: 'all 0.3s ease',
+                    background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+                    padding: '30px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '200px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <div style={{fontSize: '48px', marginBottom: '15px'}}>🎯</div>
+                    <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>미래를 선도하는 비전</h3>
+                    <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>차별화된 서비스 제공</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2926,12 +3004,19 @@ function App() {
       )}
 
       {currentPage === 'history' && (
-        <section style={{padding: '60px 0', background: '#f8f9fa', minHeight: '80vh'}}>
+        <section style={{padding: '60px 0', background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%)', minHeight: '80vh'}}>
           <div className="container">
-            <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>회사연혁</h1>
+            <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#ffffff'}}>회사연혁</h1>
             <div style={{maxWidth: '800px', margin: '0 auto'}}>
-              <div style={{background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
-                <div style={{fontSize: '16px', lineHeight: '1.8', color: '#555', marginBottom: '30px'}}>
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)', 
+                padding: '40px', 
+                borderRadius: '15px', 
+                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.15)',
+                border: '1px solid rgba(102, 126, 234, 0.2)',
+                backdropFilter: 'blur(10px)'
+              }}>
+                <div style={{fontSize: '16px', lineHeight: '1.8', color: '#e0e0e0', marginBottom: '30px'}}>
                   {companyInfo.history?.content ? (
                     companyInfo.history.content.split('\n').map((line, index) => (
                       <p key={index} style={{margin: '0 0 15px 0'}}>{line}</p>
@@ -2941,18 +3026,102 @@ function App() {
                   )}
                 </div>
                 
-                {companyInfo.history?.images && companyInfo.history.images.length > 0 && (
-                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px'}}>
-                    {companyInfo.history.images.map((image, index) => (
-                      <img 
-                        key={index}
-                        src={`http://localhost:5003${image}`}
-                        alt={`회사연혁 이미지 ${index + 1}`}
-                        style={{width: '100%', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}
-                      />
-                    ))}
+                {/* 회사연혁 관련 이미지 - 디자인 감각 적용 */}
+                <div style={{
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                  gap: '20px',
+                  marginTop: '30px'
+                }}>
+                  {/* 기존 이미지들 */}
+                  {companyInfo.history?.images && companyInfo.history.images.length > 0 && 
+                    companyInfo.history.images.map((image, index) => (
+                      <div key={`uploaded-${index}`} style={{
+                        borderRadius: '15px',
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
+                        border: '1px solid rgba(102, 126, 234, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        <img 
+                          src={`http://localhost:5003${image}`}
+                          alt={`회사연혁 이미지 ${index + 1}`}
+                          style={{width: '100%', height: '200px', objectFit: 'cover'}}
+                        />
+                      </div>
+                    ))
+                  }
+                  
+                  {/* 디자인된 회사연혁 이미지들 */}
+                  <div style={{
+                    borderRadius: '15px',
+                    overflow: 'hidden',
+                    boxShadow: '0 8px 25px rgba(76, 175, 80, 0.4)',
+                    border: '1px solid rgba(76, 175, 80, 0.3)',
+                    transition: 'all 0.3s ease',
+                    background: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
+                    padding: '30px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '200px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <div style={{fontSize: '48px', marginBottom: '15px'}}>📅</div>
+                    <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>2023년 설립</h3>
+                    <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>혁신의 시작</p>
                   </div>
-                )}
+                  
+                  <div style={{
+                    borderRadius: '15px',
+                    overflow: 'hidden',
+                    boxShadow: '0 8px 25px rgba(255, 152, 0, 0.4)',
+                    border: '1px solid rgba(255, 152, 0, 0.3)',
+                    transition: 'all 0.3s ease',
+                    background: 'linear-gradient(135deg, #ff9800 0%, #ffc107 100%)',
+                    padding: '30px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '200px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <div style={{fontSize: '48px', marginBottom: '15px'}}>🚀</div>
+                    <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>2024년 성장</h3>
+                    <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>AI 솔루션 개발</p>
+                  </div>
+
+                  <div style={{
+                    borderRadius: '15px',
+                    overflow: 'hidden',
+                    boxShadow: '0 8px 25px rgba(33, 150, 243, 0.4)',
+                    border: '1px solid rgba(33, 150, 243, 0.3)',
+                    transition: 'all 0.3s ease',
+                    background: 'linear-gradient(135deg, #2196f3 0%, #03a9f4 100%)',
+                    padding: '30px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '200px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <div style={{fontSize: '48px', marginBottom: '15px'}}>⭐</div>
+                    <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>미래 전망</h3>
+                    <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>지속적인 혁신</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2960,13 +3129,21 @@ function App() {
       )}
 
       {currentPage === 'business' && (
-        <section style={{padding: '60px 0', background: '#f8f9fa', minHeight: '80vh'}}>
+        <section style={{padding: '60px 0', background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%)', minHeight: '80vh'}}>
           <div className="container">
-            <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>사업분야</h1>
+            <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#ffffff'}}>사업분야</h1>
             {companyInfo.business?.items && companyInfo.business.items.length > 0 ? (
               <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px'}}>
                 {companyInfo.business.items.map((item, index) => (
-                  <div key={index} style={{background: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', transition: 'transform 0.3s ease'}}>
+                  <div key={index} style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)', 
+                    borderRadius: '15px', 
+                    overflow: 'hidden', 
+                    boxShadow: '0 8px 32px rgba(102, 126, 234, 0.15)', 
+                    border: '1px solid rgba(102, 126, 234, 0.2)',
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.3s ease'
+                  }}>
                     {item.image && (
                       <img 
                         src={`http://localhost:5003${item.image}`} 
@@ -2975,15 +3152,79 @@ function App() {
                       />
                     )}
                     <div style={{padding: '25px'}}>
-                      <h3 style={{color: '#333', margin: '0 0 15px 0', fontSize: '20px'}}>{item.name}</h3>
-                      <p style={{color: '#666', margin: '0', fontSize: '15px', lineHeight: '1.6'}}>{item.description}</p>
+                      <h3 style={{color: '#ffffff', margin: '0 0 15px 0', fontSize: '20px'}}>{item.name}</h3>
+                      <p style={{color: '#e0e0e0', margin: '0', fontSize: '15px', lineHeight: '1.6'}}>{item.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '600px', margin: '0 auto'}}>
-                <p style={{color: '#666', fontSize: '16px'}}>등록된 사업분야가 없습니다.</p>
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
+                padding: '40px', 
+                borderRadius: '15px', 
+                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.15)', 
+                border: '1px solid rgba(102, 126, 234, 0.2)',
+                backdropFilter: 'blur(10px)',
+                textAlign: 'center', 
+                maxWidth: '600px', 
+                margin: '0 auto'
+              }}>
+                <p style={{color: '#e0e0e0', fontSize: '16px'}}>등록된 사업분야가 없습니다.</p>
+                
+                {/* 디자인된 사업분야 이미지들 */}
+                <div style={{
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+                  gap: '20px',
+                  marginTop: '30px'
+                }}>
+                  <div style={{
+                    borderRadius: '15px',
+                    overflow: 'hidden',
+                    boxShadow: '0 8px 25px rgba(156, 39, 176, 0.4)',
+                    border: '1px solid rgba(156, 39, 176, 0.3)',
+                    transition: 'all 0.3s ease',
+                    background: 'linear-gradient(135deg, #9c27b0 0%, #e91e63 100%)',
+                    padding: '30px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '200px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <div style={{fontSize: '48px', marginBottom: '15px'}}>🎯</div>
+                    <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>얼굴인식 기술</h3>
+                    <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>AI 기반 혁신 솔루션</p>
+                  </div>
+                  
+                  <div style={{
+                    borderRadius: '15px',
+                    overflow: 'hidden',
+                    boxShadow: '0 8px 25px rgba(233, 30, 99, 0.4)',
+                    border: '1px solid rgba(233, 30, 99, 0.3)',
+                    transition: 'all 0.3s ease',
+                    background: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)',
+                    padding: '30px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '200px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <div style={{fontSize: '48px', marginBottom: '15px'}}>💼</div>
+                    <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>키오스크 솔루션</h3>
+                    <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>무인 서비스 시스템</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -2991,13 +3232,22 @@ function App() {
       )}
 
       {currentPage === 'achievements' && (
-        <section style={{padding: '60px 0', background: '#f8f9fa', minHeight: '80vh'}}>
+        <section style={{padding: '60px 0', background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%)', minHeight: '80vh'}}>
           <div className="container">
-            <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>주요실적</h1>
+            <h1 style={{textAlign: 'center', marginBottom: '40px', color: '#ffffff'}}>주요실적</h1>
             <div style={{maxWidth: '1000px', margin: '0 auto'}}>
               {companyInfo.achievements?.items && companyInfo.achievements.items.length > 0 ? (
                 companyInfo.achievements.items.map((item, index) => (
-                  <div key={index} style={{background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', marginBottom: '30px'}}>
+                  <div key={index} style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)', 
+                    padding: '30px', 
+                    borderRadius: '15px', 
+                    boxShadow: '0 8px 32px rgba(102, 126, 234, 0.15)', 
+                    border: '1px solid rgba(102, 126, 234, 0.2)',
+                    backdropFilter: 'blur(10px)',
+                    marginBottom: '30px',
+                    transition: 'all 0.3s ease'
+                  }}>
                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '30px'}}>
                       {item.image && (
                         <img 
@@ -3008,18 +3258,103 @@ function App() {
                       )}
                       <div style={{flex: 1}}>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px'}}>
-                          <h3 style={{color: '#333', margin: '0', fontSize: '22px'}}>{item.project}</h3>
-                          <span style={{background: '#667eea', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold'}}>{item.year}</span>
+                          <h3 style={{color: '#ffffff', margin: '0', fontSize: '22px'}}>{item.project}</h3>
+                          <span style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'}}>{item.year}</span>
                         </div>
-                        <p style={{color: '#666', margin: '0 0 10px 0', fontSize: '16px', fontWeight: 'bold'}}>고객사: {item.client}</p>
-                        <p style={{color: '#555', margin: '0', fontSize: '15px', lineHeight: '1.6'}}>{item.description}</p>
+                        <p style={{color: '#e0e0e0', margin: '0 0 10px 0', fontSize: '16px', fontWeight: 'bold'}}>고객사: {item.client}</p>
+                        <p style={{color: '#cccccc', margin: '0', fontSize: '15px', lineHeight: '1.6'}}>{item.description}</p>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div style={{background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', textAlign: 'center'}}>
-                  <p style={{color: '#666', fontSize: '16px'}}>등록된 주요실적이 없습니다.</p>
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
+                  padding: '40px', 
+                  borderRadius: '15px', 
+                  boxShadow: '0 8px 32px rgba(102, 126, 234, 0.15)', 
+                  border: '1px solid rgba(102, 126, 234, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                  textAlign: 'center'
+                }}>
+                  <p style={{color: '#e0e0e0', fontSize: '16px', marginBottom: '30px'}}>등록된 주요실적이 없습니다.</p>
+                  
+                  {/* 디자인된 주요실적 이미지들 */}
+                  <div style={{
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                    gap: '20px',
+                    marginTop: '20px'
+                  }}>
+                    <div style={{
+                      borderRadius: '15px',
+                      overflow: 'hidden',
+                      boxShadow: '0 8px 25px rgba(76, 175, 80, 0.4)',
+                      border: '1px solid rgba(76, 175, 80, 0.3)',
+                      transition: 'all 0.3s ease',
+                      background: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
+                      padding: '30px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      minHeight: '200px',
+                      cursor: 'pointer'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <div style={{fontSize: '48px', marginBottom: '15px'}}>🏆</div>
+                      <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>AI 얼굴인식 시스템</h3>
+                      <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>성공적인 프로젝트 구축</p>
+                    </div>
+                    
+                    <div style={{
+                      borderRadius: '15px',
+                      overflow: 'hidden',
+                      boxShadow: '0 8px 25px rgba(255, 193, 7, 0.4)',
+                      border: '1px solid rgba(255, 193, 7, 0.3)',
+                      transition: 'all 0.3s ease',
+                      background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+                      padding: '30px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      minHeight: '200px',
+                      cursor: 'pointer'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <div style={{fontSize: '48px', marginBottom: '15px'}}>🚀</div>
+                      <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>혁신적인 기술 도입</h3>
+                      <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>차별화된 솔루션 제공</p>
+                    </div>
+                    
+                    <div style={{
+                      borderRadius: '15px',
+                      overflow: 'hidden',
+                      boxShadow: '0 8px 25px rgba(63, 81, 181, 0.4)',
+                      border: '1px solid rgba(63, 81, 181, 0.3)',
+                      transition: 'all 0.3s ease',
+                      background: 'linear-gradient(135deg, #3f51b5 0%, #2196f3 100%)',
+                      padding: '30px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      minHeight: '200px',
+                      cursor: 'pointer'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <div style={{fontSize: '48px', marginBottom: '15px'}}>🎆</div>
+                      <h3 style={{color: 'white', textAlign: 'center', margin: 0, fontSize: '18px'}}>고객 만족도 최고</h3>
+                      <p style={{color: 'rgba(255,255,255,0.8)', textAlign: 'center', margin: '10px 0 0 0', fontSize: '14px'}}>전문성과 신뢰성 인정</p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
