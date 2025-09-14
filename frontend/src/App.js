@@ -1,6 +1,8 @@
 import React from 'react';
 import './App.css';
 
+const API_BASE_URL = 'http://localhost:5004';
+
 function App() {
   const [currentPage, setCurrentPage] = React.useState('home');
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
@@ -123,7 +125,7 @@ function App() {
 
   const fetchNotices = async () => {
     try {
-      const response = await fetch('http://localhost:5003/api/notices');
+      const response = await fetch(`${API_BASE_URL}/api/notices`);
       const data = await response.json();
       setNotices(data);
     } catch (error) {
@@ -133,7 +135,7 @@ function App() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5003/api/products');
+      const response = await fetch(`${API_BASE_URL}/api/products`);
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -143,7 +145,7 @@ function App() {
 
   const fetchImages = async () => {
     try {
-      const response = await fetch('http://localhost:5003/api/images');
+      const response = await fetch(`${API_BASE_URL}/api/images`);
       const data = await response.json();
       setImages(data);
     } catch (error) {
@@ -153,7 +155,7 @@ function App() {
 
   const fetchBannerImage = async () => {
     try {
-      const response = await fetch('http://localhost:5003/api/images/banner');
+      const response = await fetch(`${API_BASE_URL}/api/images/banner`);
       const data = await response.json();
       setBannerImage(data.bannerImage);
     } catch (error) {
@@ -163,7 +165,7 @@ function App() {
 
   const fetchBannerImages = async () => {
     try {
-      const response = await fetch('http://localhost:5003/api/images/banners');
+      const response = await fetch(`${API_BASE_URL}/api/images/banners`);
       const data = await response.json();
       setBannerImages(data.bannerImages || []);
     } catch (error) {
@@ -178,7 +180,7 @@ function App() {
       formData.append('image', file);
       formData.append('type', type);
 
-      const response = await fetch('http://localhost:5003/api/images/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/images/upload`, {
         method: 'POST',
         body: formData
       });
@@ -202,7 +204,7 @@ function App() {
   const setBannerImageById = async (imageId) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5003/api/images/banner/${imageId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/images/banner/${imageId}`, {
         method: 'PUT'
       });
 
@@ -222,7 +224,7 @@ function App() {
   const toggleBannerImage = async (imageId) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5003/api/images/banner-toggle/${imageId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/images/banner-toggle/${imageId}`, {
         method: 'PUT'
       });
 
@@ -253,7 +255,7 @@ function App() {
         formData.append('image', image);
       }
 
-      const response = await fetch('http://localhost:5003/api/notices', {
+      const response = await fetch(`${API_BASE_URL}/api/notices`, {
         method: 'POST',
         body: formData
       });
@@ -280,7 +282,7 @@ function App() {
         formData.append('image', image);
       }
 
-      const response = await fetch('http://localhost:5003/api/products', {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         body: formData
       });
@@ -365,7 +367,7 @@ function App() {
   // 문의하기 관련 함수들
   const fetchContacts = async () => {
     try {
-      const response = await fetch('http://localhost:5003/api/contacts');
+      const response = await fetch(`${API_BASE_URL}/api/contacts`);
       const data = await response.json();
       setContacts(data);
     } catch (error) {
@@ -391,7 +393,7 @@ function App() {
         formData.append('file', contactForm.file);
       }
 
-      const response = await fetch('http://localhost:5003/api/contacts', {
+      const response = await fetch(`${API_BASE_URL}/api/contacts`, {
         method: 'POST',
         body: formData
       });
@@ -419,7 +421,7 @@ function App() {
 
   const updateContactStatus = async (contactId, status) => {
     try {
-      const response = await fetch(`http://localhost:5003/api/contacts/${contactId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/contacts/${contactId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -442,7 +444,7 @@ function App() {
   const deleteContact = async (contactId) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-        const response = await fetch(`http://localhost:5003/api/contacts/${contactId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/contacts/${contactId}`, {
           method: 'DELETE'
         });
 
@@ -646,7 +648,7 @@ function App() {
                       index === previousBannerIndex && isSliding ? 'exit' : ''
                     }`}
                     style={{
-                      background: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(http://localhost:5003${image.path}) center/cover`
+                      background: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(${API_BASE_URL}${image.path}) center/cover`
                     }}
                   />
                 ))}
@@ -655,7 +657,7 @@ function App() {
               <div
                 className="hero-slide active"
                 style={{
-                  background: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(http://localhost:5003${bannerImage.path}) center/cover`,
+                  background: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(${API_BASE_URL}${bannerImage.path}) center/cover`,
                   position: 'relative',
                   opacity: 1,
                   transform: 'translateX(0)'
@@ -727,18 +729,99 @@ function App() {
             <div className="container">
               <div className="feature-grid">
                 <div className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('about')}>
+                  <div className="feature-icon">
+                    <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
+                      <rect x="25" y="35" width="20" height="45" fill="#4A90E2" rx="2"/>
+                      <rect x="55" y="25" width="20" height="55" fill="#357ABD" rx="2"/>
+                      <rect x="28" y="45" width="3" height="3" fill="white"/>
+                      <rect x="34" y="45" width="3" height="3" fill="white"/>
+                      <rect x="40" y="45" width="3" height="3" fill="white"/>
+                      <rect x="28" y="52" width="3" height="3" fill="white"/>
+                      <rect x="34" y="52" width="3" height="3" fill="white"/>
+                      <rect x="40" y="52" width="3" height="3" fill="white"/>
+                      <rect x="28" y="59" width="3" height="3" fill="white"/>
+                      <rect x="34" y="59" width="3" height="3" fill="white"/>
+                      <rect x="40" y="59" width="3" height="3" fill="white"/>
+                      <rect x="58" y="35" width="3" height="3" fill="white"/>
+                      <rect x="64" y="35" width="3" height="3" fill="white"/>
+                      <rect x="70" y="35" width="3" height="3" fill="white"/>
+                      <rect x="58" y="42" width="3" height="3" fill="white"/>
+                      <rect x="64" y="42" width="3" height="3" fill="white"/>
+                      <rect x="70" y="42" width="3" height="3" fill="white"/>
+                      <rect x="58" y="49" width="3" height="3" fill="white"/>
+                      <rect x="64" y="49" width="3" height="3" fill="white"/>
+                      <rect x="70" y="49" width="3" height="3" fill="white"/>
+                      <rect x="58" y="56" width="3" height="3" fill="white"/>
+                      <rect x="64" y="56" width="3" height="3" fill="white"/>
+                      <rect x="70" y="56" width="3" height="3" fill="white"/>
+                      <rect x="58" y="63" width="3" height="3" fill="white"/>
+                      <rect x="64" y="63" width="3" height="3" fill="white"/>
+                      <rect x="70" y="63" width="3" height="3" fill="white"/>
+                    </svg>
+                  </div>
                   <h3>회사소개</h3>
                   <p>다른 큰 경쟁으로 도약하겠습니다.</p>
                 </div>
                 <div className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('history')}>
+                  <div className="feature-icon">
+                    <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
+                      <rect x="25" y="30" width="50" height="40" fill="#FF8C42" rx="4"/>
+                      <rect x="25" y="38" width="50" height="32" fill="white" rx="2"/>
+                      <rect x="32" y="25" width="3" height="12" fill="#E67E22" rx="1.5"/>
+                      <rect x="65" y="25" width="3" height="12" fill="#E67E22" rx="1.5"/>
+                      <rect x="30" y="45" width="8" height="8" fill="#FF8C42" rx="1"/>
+                      <text x="34" y="52" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">31</text>
+                      <circle cx="45" cy="49" r="1.5" fill="#BDC3C7"/>
+                      <circle cx="55" cy="49" r="1.5" fill="#BDC3C7"/>
+                      <circle cx="65" cy="49" r="1.5" fill="#BDC3C7"/>
+                      <circle cx="40" cy="58" r="1.5" fill="#BDC3C7"/>
+                      <circle cx="50" cy="58" r="1.5" fill="#BDC3C7"/>
+                      <circle cx="60" cy="58" r="1.5" fill="#BDC3C7"/>
+                    </svg>
+                  </div>
                   <h3>회사연혁</h3>
                   <p>지금껏 걸어온 길을 살펴보세요.</p>
                 </div>
                 <div className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('business')}>
+                  <div className="feature-icon">
+                    <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
+                      <circle cx="40" cy="35" r="4" fill="#52C4B0"/>
+                      <circle cx="60" cy="35" r="4" fill="#52C4B0"/>
+                      <circle cx="50" cy="25" r="4" fill="#52C4B0"/>
+                      <circle cx="50" cy="75" r="4" fill="#52C4B0"/>
+                      <circle cx="35" cy="55" r="4" fill="#52C4B0"/>
+                      <circle cx="65" cy="55" r="4" fill="#52C4B0"/>
+                      <circle cx="50" cy="50" r="4" fill="#45B7AA"/>
+                      <line x1="40" y1="35" x2="50" y2="25" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="50" y1="25" x2="60" y2="35" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="40" y1="35" x2="50" y2="50" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="60" y1="35" x2="50" y2="50" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="35" y1="55" x2="50" y2="50" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="65" y1="55" x2="50" y2="50" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="35" y1="55" x2="50" y2="75" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="65" y1="55" x2="50" y2="75" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="40" y1="35" x2="35" y2="55" stroke="#52C4B0" strokeWidth="2"/>
+                      <line x1="60" y1="35" x2="65" y2="55" stroke="#52C4B0" strokeWidth="2"/>
+                    </svg>
+                  </div>
                   <h3>사업분야</h3>
                   <p>차별화된 서비스로 승부합니다.</p>
                 </div>
                 <div className="feature" style={{cursor: 'pointer'}} onClick={() => showPage('achievements')}>
+                  <div className="feature-icon">
+                    <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
+                      <rect x="30" y="55" width="8" height="20" fill="#4A90E2" rx="1"/>
+                      <rect x="42" y="45" width="8" height="30" fill="#357ABD" rx="1"/>
+                      <rect x="54" y="35" width="8" height="40" fill="#4A90E2" rx="1"/>
+                      <rect x="66" y="25" width="8" height="50" fill="#357ABD" rx="1"/>
+                      <path d="M 34 50 L 46 40 L 58 30 L 70 20" stroke="#FF6B6B" strokeWidth="2.5" fill="none"/>
+                      <circle cx="34" cy="50" r="2.5" fill="#FF6B6B"/>
+                      <circle cx="46" cy="40" r="2.5" fill="#FF6B6B"/>
+                      <circle cx="58" cy="30" r="2.5" fill="#FF6B6B"/>
+                      <circle cx="70" cy="20" r="2.5" fill="#FF6B6B"/>
+                      <path d="M 66 15 L 70 20 L 74 18" stroke="#FF6B6B" strokeWidth="2" fill="none"/>
+                    </svg>
+                  </div>
                   <h3>주요실적</h3>
                   <p>다양한 분야에서 위상을 높이고 있습니다.</p>
                 </div>
@@ -876,7 +959,7 @@ function App() {
                             {notice.image && (
                               <div style={{marginLeft: '8px'}}>
                                 <img 
-                                  src={`http://localhost:5003${notice.image}`} 
+                                  src={`${API_BASE_URL}${notice.image}`} 
                                   alt={notice.title}
                                   style={{width: '50px', height: '38px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
                                 />
@@ -1128,7 +1211,7 @@ function App() {
                   {selectedProduct.image && (
                     <div style={{textAlign: 'center', marginBottom: '30px'}}>
                       <img 
-                        src={`http://localhost:5003${selectedProduct.image}`}
+                        src={`${API_BASE_URL}${selectedProduct.image}`}
                         alt={selectedProduct.name}
                         style={{
                           maxWidth: '100%',
@@ -1467,7 +1550,7 @@ function App() {
                                   {product.image && (
                                     <div style={{flexShrink: 0}}>
                                       <img 
-                                        src={`http://localhost:5003${product.image}`} 
+                                        src={`${API_BASE_URL}${product.image}`} 
                                         alt={product.name}
                                         style={{
                                           width: '200px', 
@@ -1782,7 +1865,7 @@ function App() {
                         {notice.image && (
                           <div style={{margin: '10px 0'}}>
                             <img 
-                              src={`http://localhost:5003${notice.image}`} 
+                              src={`${API_BASE_URL}${notice.image}`} 
                               alt={notice.title}
                               style={{maxWidth: '300px', maxHeight: '200px', borderRadius: '4px', border: '1px solid #ddd'}}
                             />
@@ -1887,7 +1970,7 @@ function App() {
                           {product.image && (
                             <div style={{marginLeft: '15px'}}>
                               <img 
-                                src={`http://localhost:5003${product.image}`} 
+                                src={`${API_BASE_URL}${product.image}`} 
                                 alt={product.name}
                                 style={{width: '120px', height: '90px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
                               />
@@ -1949,7 +2032,7 @@ function App() {
                       <div style={{flex: 1, border: '2px solid #e74c3c', borderRadius: '8px', padding: '15px', background: '#fff5f5'}}>
                         <h4 style={{color: '#e74c3c', margin: '0 0 10px 0'}}>현재 배너 이미지</h4>
                         <img 
-                          src={`http://localhost:5003${bannerImage.path}`}
+                          src={`${API_BASE_URL}${bannerImage.path}`}
                           alt="Current Banner"
                           style={{width: '100%', maxWidth: '300px', height: '150px', objectFit: 'cover', borderRadius: '4px'}}
                         />
@@ -1968,7 +2051,7 @@ function App() {
                           {bannerImages.slice(0, 4).map((img, idx) => (
                             <img 
                               key={idx}
-                              src={`http://localhost:5003${img.path}`}
+                              src={`${API_BASE_URL}${img.path}`}
                               alt={`Slideshow ${idx + 1}`}
                               style={{width: '80px', height: '60px', objectFit: 'cover', borderRadius: '4px'}}
                             />
@@ -2049,7 +2132,7 @@ function App() {
                           backgroundColor: bannerImage && bannerImage.id === image.id ? '#fff5f5' : 'white'
                         }}>
                           <img 
-                            src={`http://localhost:5003${image.path}`}
+                            src={`${API_BASE_URL}${image.path}`}
                             alt={image.originalname}
                             style={{width: '100%', height: '150px', objectFit: 'cover'}}
                           />
@@ -2267,7 +2350,7 @@ function App() {
                         {companyInfo.about.images.map((image, index) => (
                           <img 
                             key={index}
-                            src={`http://localhost:5003${image}`}
+                            src={`${API_BASE_URL}${image}`}
                             alt={`회사소개 이미지 ${index + 1}`}
                             style={{width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
                           />
@@ -2342,7 +2425,7 @@ function App() {
                         {companyInfo.history.images.map((image, index) => (
                           <img 
                             key={index}
-                            src={`http://localhost:5003${image}`}
+                            src={`${API_BASE_URL}${image}`}
                             alt={`회사연혁 이미지 ${index + 1}`}
                             style={{width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd'}}
                           />
@@ -2420,7 +2503,7 @@ function App() {
                         <div key={index} style={{border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden'}}>
                           {item.image && (
                             <img 
-                              src={`http://localhost:5003${item.image}`} 
+                              src={`${API_BASE_URL}${item.image}`} 
                               alt={item.name}
                               style={{width: '100%', height: '150px', objectFit: 'cover'}}
                             />
@@ -2531,7 +2614,7 @@ function App() {
                       <div key={index} style={{borderBottom: '1px solid #eee', padding: '20px 0', display: 'flex', alignItems: 'flex-start', gap: '20px'}}>
                         {item.image && (
                           <img 
-                            src={`http://localhost:5003${item.image}`} 
+                            src={`${API_BASE_URL}${item.image}`} 
                             alt={item.project}
                             style={{width: '120px', height: '90px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd', flexShrink: 0}}
                           />
@@ -2654,7 +2737,7 @@ function App() {
                             <div style={{marginTop: '10px'}}>
                               <strong style={{color: '#333', fontSize: '14px'}}>첨부파일: </strong>
                               <a 
-                                href={`http://localhost:5003${contact.file}`}
+                                href={`${API_BASE_URL}${contact.file}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{color: '#667eea', textDecoration: 'none'}}
@@ -2932,7 +3015,7 @@ function App() {
                         transition: 'all 0.3s ease'
                       }}>
                         <img 
-                          src={`http://localhost:5003${image}`}
+                          src={`${API_BASE_URL}${image}`}
                           alt={`회사소개 이미지 ${index + 1}`}
                           style={{width: '100%', height: '200px', objectFit: 'cover'}}
                         />
@@ -3044,7 +3127,7 @@ function App() {
                         transition: 'all 0.3s ease'
                       }}>
                         <img 
-                          src={`http://localhost:5003${image}`}
+                          src={`${API_BASE_URL}${image}`}
                           alt={`회사연혁 이미지 ${index + 1}`}
                           style={{width: '100%', height: '200px', objectFit: 'cover'}}
                         />
@@ -3146,7 +3229,7 @@ function App() {
                   }}>
                     {item.image && (
                       <img 
-                        src={`http://localhost:5003${item.image}`} 
+                        src={`${API_BASE_URL}${item.image}`} 
                         alt={item.name}
                         style={{width: '100%', height: '200px', objectFit: 'cover'}}
                       />
@@ -3251,7 +3334,7 @@ function App() {
                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '30px'}}>
                       {item.image && (
                         <img 
-                          src={`http://localhost:5003${item.image}`} 
+                          src={`${API_BASE_URL}${item.image}`} 
                           alt={item.project}
                           style={{width: '200px', height: '150px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e0e0e0', flexShrink: 0}}
                         />
