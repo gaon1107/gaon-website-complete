@@ -751,7 +751,7 @@ function App() {
           {products.length > 0 && (
             <section className="products-home-section">
               <div className="container">
-                <h2 style={{textAlign: 'center', marginBottom: '40px', color: '#333'}}>주요 제품</h2>
+                <h2 style={{textAlign: 'center', marginBottom: '40px', color: '#ffffff'}}>주요 제품</h2>
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -762,21 +762,22 @@ function App() {
                       key={index} 
                       style={{
                         cursor: 'pointer',
-                        background: 'white',
+                        background: 'rgba(255,255,255,0.08)',
                         padding: '30px',
                         borderRadius: '15px',
-                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+                        boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
                         transition: 'all 0.3s ease',
-                        border: '1px solid #eee'
+                        border: '1px solid rgba(102, 126, 234, 0.2)',
+                        color: '#ffffff'
                       }} 
                       onClick={() => openProductDetail(product)}
                       onMouseOver={(e) => {
                         e.target.style.transform = 'translateY(-5px)';
-                        e.target.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)';
+                        e.target.style.boxShadow = '0 15px 35px rgba(102, 126, 234, 0.3)';
                       }}
                       onMouseOut={(e) => {
                         e.target.style.transform = 'translateY(0)';
-                        e.target.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                        e.target.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
                       }}
                     >
                       <h3>{product.name}</h3>
@@ -824,18 +825,19 @@ function App() {
                 
                 {/* 공지사항 - 가로 배치용 */}
                 <div className="notice-card" style={{
-                  background: 'white',
+                  background: 'rgba(255,255,255,0.08)',
                   padding: '30px',
                   borderRadius: '12px',
-                  boxShadow: '0 8px 25px rgba(0,0,0,0.08)',
+                  boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
                   flex: '1 1 45%',
                   minHeight: '450px',
                   maxWidth: '45%',
                   width: '45%',
                   display: 'flex',
-                  flexDirection: 'column'
+                  flexDirection: 'column',
+                  border: '1px solid rgba(102, 126, 234, 0.15)'
                 }}>
-                  <h2 style={{textAlign: 'center', marginBottom: '20px', color: '#333', fontSize: '18px'}}>📢 최신 공지사항</h2>
+                  <h2 style={{textAlign: 'center', marginBottom: '20px', color: '#333333', fontSize: '18px'}}>📢 최신 공지사항</h2>
                   {notices.length > 0 ? (
                     <div>
                       {notices.slice(0, 3).map((notice, index) => (
@@ -843,32 +845,33 @@ function App() {
                           padding: '12px', 
                           marginBottom: '12px', 
                           borderRadius: '6px', 
-                          border: '1px solid #e1e8ed',
+                          border: '1px solid rgba(255,255,255,0.1)',
                           cursor: 'pointer',
-                          transition: 'all 0.3s ease'
+                          transition: 'all 0.3s ease',
+                          background: 'rgba(255,255,255,0.03)'
                         }} 
                         onClick={() => openNoticeDetail(notice)}
                         onMouseOver={(e) => {
-                          e.currentTarget.style.backgroundColor = '#f8f9fa';
+                          e.currentTarget.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
                           e.currentTarget.style.borderColor = '#667eea';
                         }}
                         onMouseOut={(e) => {
-                          e.currentTarget.style.backgroundColor = 'white';
-                          e.currentTarget.style.borderColor = '#e1e8ed';
+                          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)';
+                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                         }}
                         >
                           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                             <div style={{flex: 1}}>
                               <div style={{marginBottom: '6px'}}>
                                 <span style={{background: '#e74c3c', color: 'white', padding: '2px 6px', borderRadius: '10px', fontSize: '10px', marginRight: '6px'}}>공지</span>
-                                <strong style={{color: '#333', fontSize: '13px'}}>{notice.title}</strong>
+                                <strong style={{color: '#333333', fontSize: '13px'}}>{notice.title}</strong>
                               </div>
                               {notice.content && (
-                                <p style={{margin: '0', color: '#666', fontSize: '11px', lineHeight: '1.4'}}>
+                                <p style={{margin: '0', color: '#666666', fontSize: '11px', lineHeight: '1.4'}}>
                                   {notice.content.length > 60 ? notice.content.substring(0, 60) + '...' : notice.content}
                                 </p>
                               )}
-                              <span style={{color: '#999', fontSize: '10px', display: 'block', marginTop: '6px'}}>{notice.date}</span>
+                              <span style={{color: '#999999', fontSize: '10px', display: 'block', marginTop: '6px'}}>{notice.date}</span>
                             </div>
                             {notice.image && (
                               <div style={{marginLeft: '8px'}}>
@@ -920,25 +923,26 @@ function App() {
 
                 {/* 문의하기 - 가로 배치용 */}
                 <div className="contact-card" style={{
-                  background: 'white',
+                  background: 'rgba(255,255,255,0.08)',
                   padding: '30px',
                   borderRadius: '12px',
-                  boxShadow: '0 8px 25px rgba(0,0,0,0.08)',
+                  boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
                   flex: '1 1 45%',
                   minHeight: '450px',
                   maxWidth: '45%',
                   width: '45%',
                   display: 'flex',
-                  flexDirection: 'column'
+                  flexDirection: 'column',
+                  border: '1px solid rgba(102, 126, 234, 0.15)'
                 }}>
-                  <h2 style={{textAlign: 'center', marginBottom: '20px', color: '#333', fontSize: '18px'}}>💬 제품 문의 및 상담</h2>
-                  <p style={{textAlign: 'center', marginBottom: '25px', color: '#666', fontSize: '14px', lineHeight: '1.5'}}>
+                  <h2 style={{textAlign: 'center', marginBottom: '20px', color: '#333333', fontSize: '18px'}}>💬 제품 문의 및 상담</h2>
+                  <p style={{textAlign: 'center', marginBottom: '25px', color: '#666666', fontSize: '14px', lineHeight: '1.5'}}>
                     궁금한 점이 있으시면 언제든지 문의해 주세요.<br />
                     전문 상담원이 신속하고 정확한 답변을 드리겠습니다.
                   </p>
                   <form onSubmit={handleContactSubmit}>
                     <div style={{marginBottom: '12px'}}>
-                      <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold', color: '#333', fontSize: '12px'}}>이름 *</label>
+                      <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold', color: '#333333', fontSize: '12px'}}>이름 *</label>
                       <input
                         type="text"
                         value={contactForm.name}
@@ -946,20 +950,22 @@ function App() {
                         style={{
                           width: '100%',
                           padding: '10px',
-                          border: '2px solid #e1e8ed',
+                          border: '2px solid rgba(255,255,255,0.2)',
                           borderRadius: '6px',
                           fontSize: '12px',
                           transition: 'border-color 0.3s',
-                          boxSizing: 'border-box'
+                          boxSizing: 'border-box',
+                          background: 'rgba(255,255,255,0.8)',
+                          color: '#333333'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                        onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
                         required
                       />
                     </div>
                     
                     <div style={{marginBottom: '12px'}}>
-                      <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold', color: '#333', fontSize: '12px'}}>연락처 *</label>
+                      <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold', color: '#333333', fontSize: '12px'}}>연락처 *</label>
                       <input
                         type="text"
                         value={contactForm.contact}
@@ -967,21 +973,23 @@ function App() {
                         style={{
                           width: '100%',
                           padding: '10px',
-                          border: '2px solid #e1e8ed',
+                          border: '2px solid rgba(255,255,255,0.2)',
                           borderRadius: '6px',
                           fontSize: '12px',
                           transition: 'border-color 0.3s',
-                          boxSizing: 'border-box'
+                          boxSizing: 'border-box',
+                          background: 'rgba(255,255,255,0.8)',
+                          color: '#333333'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                        onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
                         placeholder="전화번호, 이메일 등"
                         required
                       />
                     </div>
 
                     <div style={{marginBottom: '12px'}}>
-                      <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold', color: '#333', fontSize: '12px'}}>문의내용 *</label>
+                      <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold', color: '#333333', fontSize: '12px'}}>문의내용 *</label>
                       <textarea
                         value={contactForm.content}
                         onChange={(e) => setContactForm({...contactForm, content: e.target.value})}
@@ -989,16 +997,18 @@ function App() {
                         style={{
                           width: '100%',
                           padding: '10px',
-                          border: '2px solid #e1e8ed',
+                          border: '2px solid rgba(255,255,255,0.2)',
                           borderRadius: '6px',
                           fontSize: '12px',
                           transition: 'border-color 0.3s',
                           resize: 'vertical',
                           boxSizing: 'border-box',
-                          minHeight: '80px'
+                          minHeight: '80px',
+                          background: 'rgba(255,255,255,0.8)',
+                          color: '#333333'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                        onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
                         placeholder="문의하실 내용을 자세히 작성해 주세요."
                         required
                       />
@@ -1013,14 +1023,16 @@ function App() {
                         style={{
                           width: '100%',
                           padding: '8px',
-                          border: '2px solid #e1e8ed',
+                          border: '2px solid rgba(255,255,255,0.2)',
                           borderRadius: '6px',
                           fontSize: '11px',
-                          boxSizing: 'border-box'
+                          boxSizing: 'border-box',
+                          background: 'rgba(255,255,255,0.8)',
+                          color: '#333333'
                         }}
                         accept="image/*,.pdf,.doc,.docx,.txt"
                       />
-                      <small style={{color: '#666', fontSize: '10px', display: 'block', marginTop: '3px'}}>
+                      <small style={{color: '#666666', fontSize: '10px', display: 'block', marginTop: '3px'}}>
                         이미지, PDF, 문서 등 (최대 5MB)
                       </small>
                     </div>
